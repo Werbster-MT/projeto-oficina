@@ -15,23 +15,33 @@
                     <div class="card shadow-lg mt-5">
                         <div class="card-body p-5">
                             <h1 class="fs-4 card-title fw-bold mb-4 text-center">Login</h1>
+                            <?php 
+                                if (isset($_GET['error'])) {
+                                    echo "<div class='alert alert-danger'>";                                    
+                                    switch ($_GET['error']) {
+                                        case 'empty':
+                                            echo 'Por favor, preencha todos os campos.';
+                                            break;
+                                        case 'incorrect_password':
+                                            echo 'Senha incorreta!';
+                                            break;
+                                        case 'user_not_found':
+                                            echo 'Usuário não cadastrado! Por favor entre em contanto com o administrador.';
+                                            break;
+                                    }
+                                    echo "</div>";
+                                }?>
                             <form method="POST" class="needs-validation" action="login.php" autocomplete="off">
                                 <div class="mb-3">
-                                    <label class="mb-2 text-muted fw-semibold" for="ususario">Usuário</label>
-                                    <input type="text" class="form-control" name="usuario" placeholder="Seu nome" value="" required autofocus>
-                                    <div class="invalid-feedback">
-                                        Usuário Inválido
-                                    </div>
+                                    <label class="mb-2 text-muted fw-semibold" for="usuario">Usuário</label>
+                                    <input type="text" class="form-control" name="usuario" id="usuario" required autofocus>
                                 </div>
 
                                 <div class="mb-3">
                                     <div class="mb-2 w-100">
                                         <label class="text-muted fw-semibold" for="senha">Senha</label>
                                     </div>
-                                    <input type="password" class="form-control" placeholder="Sua senha" name="senha" required>
-                                    <div class="invalid-feedback">
-                                        Senha inválida
-                                    </div>
+                                    <input type="password" class="form-control" name="senha" id="senha" required>
                                 </div>
 
                                 <div class="d-flex justify-content-center mt-4">
@@ -49,7 +59,6 @@
             </div>
         </div>
     </section>
-
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>

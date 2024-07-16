@@ -1,52 +1,33 @@
-<?php 
+<?php
     session_start();
+    require "includes/config/banco.php";
+    require "includes/valida-login.php";
 
     if (empty($_POST) || empty($_POST['usuario']) || empty($_POST['senha'])) {
-        echo "<script>location.href='index.php'</script>";
+        header('Location: index.php?error=empty');
+        exit();
     }
 
-    include('config/banco.php');
+    $usuario = $_POST['usuario'] ?? null;
+    $senha = $_POST['senha'] ?? null;
 
-    function cripto($senha) {
-        $c = '';
-        for ($pos = 0; $pos < strlen($senha); $pos++) {
-            $letra = ord($senha[$pos]) + 1; // ord() mostra o cod de uma letra
-            // chr() mostra a letra de um código
-            $c .= chr($letra);
+    $sql = "SELECT * FROM usuario WHERE nome = ?";
+    $stmt = $banco->prepare($sql);
+    $stmt->bind_param('s', $usuario);
+    $stmt->execute();
+    $res = $stmt->get_result();
+
+    if ($res->num_rows > 0) {
+        $row = $res->fetch_object();
+        if (testarHash($senha, $row->senha)) {
+            $_SESSION['usuario'] = $usuario;
+            $_SESSION['tipo'] = $row->tipo;
+            header('Location: dashboard.php');
+        } else {
+            header('Location: index.php?error=incorrect_password');
         }
-        return $c;
+    } else {
+        header('Location: index.php?error=user_not_found');
     }
-    
-    function gerarHash($senha) {
-        $txt = cripto($senha);
-        $hash = password_hash($txt, PASSWORD_DEFAULT);
-        return $hash;
-    }
-
-    function testarHash($senha, $hash) {
-        $ok = password_verify(cripto($senha), $hash);
-        return $ok;
-    }
-
-    $usuario = $_POST['usuario'];
-    $senha = $_POST['senha'];
-
-    $sql = "Select * from usuario 
-            where nome = {$usuario} 
-            and senha = {$senha}";
-
-    $res = $banco ->query($sql);
-
-    $row = $res->fetch_object(); 
-
-    if ($res->num_rows) {
-        $_SESSION['usuario'] = $usuario;
-        $_SESSION['nivel_acesso'] = $row->nivel_acesso;
-        echo "<script>location.href='dashboard.php'</script>";
-    }else {
-        echo "<div class='alert alert-danger' role='alert'>
-                    Usuário e/ou senha incorreto(s)
-            </div>"; 
-        echo "<script>location.href='index.php'</script>";
-    }
+    exit();
 ?>
