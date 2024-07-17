@@ -1,1 +1,22 @@
 @charset "UTF-8";
+
+.card-custom {
+    height: 300px;
+    width: 100%; 
+}
+
+.card-custom .card-block li {
+    list-style: none;
+    font-size: 0.8em;
+}
+
+.card-block {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+}
+
+#service-icon {
+    font-size: 60px;
+}

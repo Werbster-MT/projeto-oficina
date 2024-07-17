@@ -1,10 +1,3 @@
-<?php 
-    if(empty($_SESSION)) {
-        header("Location: index.php"); 
-    }
-    $tipo = $_SESSION['tipo']; 
-?>
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -12,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://kit.fontawesome.com/0c23645969.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
+
 <body>
     <header>
         <nav class="navbar navbar-expand-lg bg-danger p-3">
@@ -25,9 +20,6 @@
                 
                 <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
                     <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="#">Home</a>
-                        </li>
                         <?php 
                             switch ($tipo) {
                                 case "vendedor":
@@ -47,12 +39,12 @@
                                 case "mecanico":
                                     echo "
                                         <li class='nav-item'>
-                                            <a class='nav-link' href='#'>Serviços</a>
+                                            <a class='nav-link active' href='#'>Serviços</a>
                                         </li>
                                     ";
                                     echo "
                                         <li class='nav-item'>
-                                            <a class='nav-link' href='#'>Adicionar Serviços</a>
+                                            <a class='nav-link' href='mecanico/adicionar_servico.php'>Adicionar Serviço</a>
                                         </li>
                                     ";                                               
                                     break;
