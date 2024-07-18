@@ -1,5 +1,10 @@
 <?php
-    // session_start();
+    if (session_status() == PHP_SESSION_NONE) {
+        session_start();
+    }
+    if(empty($_SESSION)) {
+        header("Location: index.php"); 
+    }
     include_once "includes/config/banco.php";
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
