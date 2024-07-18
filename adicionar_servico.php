@@ -1,5 +1,5 @@
 <?php
-    session_start();
+    // session_start();
     include_once "includes/config/banco.php";
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -56,46 +56,9 @@
     }
 ?>
 
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adicionar Serviço</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <script src="https://kit.fontawesome.com/0c23645969.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="assets/css/style.css">
-</head>
-<body>
-<header>
-        <nav class="navbar navbar-expand-lg bg-danger p-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="#">Oficina Auto</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                
-                <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
-                    <ul class="navbar-nav">
-                        <li class='nav-item'>
-                            <a class='nav-link' href='dashboard.php'>Serviços</a>
-                        </li>
-                        <li class='nav-item'>
-                            <a class='nav-link active' href='adicionar_servico.php'>Adicionar Serviço</a>
-                        </li>
-                    </ul>
-                    <div class="navbar-nav">
-                        <span class="nav-item">
-                            <a href="" class="nav-link">Meus Dados</a>
-                        </span>
-                        <span class="nav-item">
-                            <a class="nav-link" href="logout.php">Sair</a>
-                        </div>
-                    </span>
-                </div>
-            </div>
-        </nav>
-    </header>
+    <?php 
+    $currentPage = 'adicionar_servico';
+    require_once "includes/templates/header.php"?>
 
     <div class="container mt-5">
         <h2>Adicionar Serviço</h2>
@@ -188,8 +151,7 @@
             <button type="button" class="btn btn-danger btn-remove-material">Remover</button>
         </div>
     </div>
-
-    <?php include_once "includes/templates/footer.php"?>
+    </div>
     <script>
         document.getElementById('btn-add-material').addEventListener('click', function() {
             var container = document.getElementById('materiais-container');
@@ -205,6 +167,6 @@
             }
         });
     </script>
-</body>
-</html>
-</html>
+
+    <!-- Footer -->
+    <?php include_once "includes/templates/footer.php"?>

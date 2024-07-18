@@ -1,86 +1,50 @@
+<!-- Header -->
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <title><?=$currentPage?></title>
+    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+    
+    <!-- Data Table -->
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Font Awesome -->
     <script src="https://kit.fontawesome.com/0c23645969.js" crossorigin="anonymous"></script>
+    
+    <!-- Adicione seus links de estilos aqui -->
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
-
-<body>
-    <header>
-        <nav class="navbar navbar-expand-lg bg-danger p-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="#">Oficina Auto</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                
-                <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
-                    <ul class="navbar-nav">
-                        <?php 
-                            switch ($tipo) {
-                                case "vendedor":
-                                    echo "
-                                        <li class='nav-item'>
-                                            <a class='nav-link' href='#'>Vendas</a>
-                                        </li>
-                                    ";                                    
-                                    break;
-                                case "almoxarifado":
-                                    echo "
-                                        <li class='nav-item'>
-                                            <a class='nav-link' href='#'>Materiais</a>
-                                        </li>
-                                    ";                                    
-                                    break;
-                                case "mecanico":
-                                    echo "
-                                        <li class='nav-item'>
-                                            <a class='nav-link active' href='#'>Serviços</a>
-                                        </li>
-                                    ";
-                                    echo "
-                                        <li class='nav-item'>
-                                            <a class='nav-link' href='mecanico/adicionar_servico.php'>Adicionar Serviço</a>
-                                        </li>
-                                    ";                                               
-                                    break;
-                                case "admin":
-                                    echo "
-                                        <li class='nav-item'>
-                                            <a class='nav-link' href='#'>Vendas</a>
-                                        </li>
-                                    ";
-                                    echo "
-                                        <li class='nav-item'>
-                                            <a class='nav-link' href='#'>Serviços</a>
-                                        </li>
-                                    ";
-                                    echo "
-                                        <li class='nav-item'>
-                                            <a class='nav-link' href='#'>Materiais</a>
-                                        </li>
-                                    ";
-                                    echo "
-                                        <li class='nav-item'>
-                                            <a class='nav-link' href='#'>Cadastrar Usuário</a>
-                                        </li>
-                                    ";
-                            }
-                        ?>
-                    </ul>
-                    <div class="navbar-nav">
-                        <span class="nav-item">
-                            <a href="" class="nav-link">Meus Dados</a>
-                        </span>
-                        <span class="nav-item">
-                            <a class="nav-link" href="logout.php">Sair</a>
-                        </span>
-                    </div>
+<header>
+    <nav class="navbar navbar-expand-lg bg-danger p-3">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Oficina Auto</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
+                <ul class="navbar-nav">
+                    <?php 
+                        include 'menu.php';
+                        echo renderMenu($_SESSION["tipo"], $currentPage); 
+                    ?>
+                </ul>
+                <div class="navbar-nav">
+                    <span class="nav-item">
+                        <a href="" class="nav-link">Meus Dados</a>
+                    </span>
+                    <span class="nav-item">
+                        <a class="nav-link" href="logout.php">Sair</a>
+                    </span>
                 </div>
             </div>
-        </nav>
-    </header>
+        </div>
+    </nav>
+</header>

@@ -31,17 +31,17 @@
                                     }
                                     echo "</div>";
                                 }?>
-                            <form method="POST" class="needs-validation" action="login.php" autocomplete="off">
+                            <form method="POST" class="needs-validation" action="login.php">
                                 <div class="mb-3">
                                     <label class="mb-2 text-muted fw-semibold" for="usuario">Usuário</label>
-                                    <input type="text" class="form-control" name="usuario" id="usuario" required autofocus>
+                                    <input type="text" class="form-control" name="usuario" id="usuario" autocomplete="username" required autofocus>
                                 </div>
 
                                 <div class="mb-3">
                                     <div class="mb-2 w-100">
                                         <label class="text-muted fw-semibold" for="senha">Senha</label>
                                     </div>
-                                    <input type="password" class="form-control" name="senha" id="senha" required>
+                                    <input type="password" class="form-control" name="senha" id="senha" autocomplete="current-password" required>
                                 </div>
 
                                 <div class="d-flex justify-content-center mt-4">
