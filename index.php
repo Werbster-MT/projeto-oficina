@@ -45,7 +45,7 @@
                                 </div>
 
                                 <div class="d-flex justify-content-center mt-4">
-                                    <button type="submit" class="btn btn-success w-100">
+                                    <button type="submit" class="btn btn-primary w-100">
                                         Entrar
                                     </button>
                                 </div>

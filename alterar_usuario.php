@@ -49,7 +49,7 @@ require_once "includes/templates/header.php";
 ?>
 
 <div class="container mt-5 mb-5">
-    <h2>Alterar Dados do Usuário</h2>
+    <h2 class="mb-4">Alterar Dados do Usuário</h2>
     <form method="POST" action="alterar_usuario.php?usuario=<?= $id_usuario ?>">
         <div class="mb-3">
             <label for="usuario" class="form-label">Usuário</label>
@@ -63,7 +63,11 @@ require_once "includes/templates/header.php";
             <label for="senha" class="form-label">Nova Senha</label>
             <input type="password" class="form-control" id="senha" name="senha" required>
         </div>
-        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+        <div class="row mt-4">
+          <div class="col-12">
+            <button type="submit" class="btn btn-responsive btn-primary">Salvar Alterações</button>
+          </div>
+        </div>
     </form>
 </div>
 

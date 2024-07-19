@@ -105,7 +105,7 @@ require_once "includes/templates/header.php";
 ?>
 
 <div class="container mt-5 mb-5">
-    <h2>Adicionar Serviço</h2>
+    <h2 class="mb-4">Adicionar Serviço</h2>
     <form method="POST">
         <div class="mb-3">
             <label for="nome_servico" class="form-label">Nome do Serviço</label>
@@ -128,8 +128,8 @@ require_once "includes/templates/header.php";
             <input type="number" class="form-control" id="valor_mao_obra" name="valor_mao_obra" step="0.01" required>
         </div>
         <div id="materiais-container">
-            <div class="row mb-3 material-item">
-                <div class="col-md-4">
+            <div class="row align-items-end material-item">
+                <div class="col-md-4 mb-3">
                     <label for="materiais" class="form-label">Material</label>
                     <select class="form-select material-select" name="materiais[]">
                         <option value="">Selecione um material</option>
@@ -143,33 +143,33 @@ require_once "includes/templates/header.php";
                         ?>
                     </select>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-2 mb-3">
                     <label for="quantidades" class="form-label">Quantidade</label>
                     <input type="number" class="form-control quantidade-input" name="quantidades[]" step="1">
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-2 mb-3">
                     <label for="precos" class="form-label">Preço Unitário</label>
                     <input type="number" class="form-control preco-input" name="precos[]" step="0.01" readonly>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-2 mb-3">
                     <label for="subtotais" class="form-label">Subtotal</label>
                     <input type="number" class="form-control subtotal-input" step="0.01" readonly>
                 </div>
-                <div class="col-md-2 d-flex align-items-end">
-                    <button type="button" class="btn btn-danger btn-remove-material">Remover</button>
+                <div class="col-md-2 d-flex align-items-end mb-3">
+                    <button type="button" class="btn btn-responsive btn-danger btn-remove-material">Remover</button>
                 </div>
             </div>
         </div>
         <div class="mb-3">
-            <button type="button" class="btn btn-secondary" id="btn-add-material">Adicionar Material</button>
+            <button type="button" class="btn btn-responsive btn-success" id="btn-add-material">Adicionar Material</button>
         </div>
-        <div class="mb-3">
+        <div class="mb-5">
             <label for="total" class="form-label">Total</label>
             <input type="number" class="form-control" id="total" name="total" step="0.01" readonly required>
         </div>
         <div class="row mb-3">
             <div class="col-md-12 text-center">
-                <button type="submit" class="btn btn-primary">Salvar Serviço</button>
+                <button type="submit" class="btn btn-responsive btn-primary">Salvar Serviço</button>
             </div>
         </div>
     </form>
@@ -251,8 +251,8 @@ require_once "includes/templates/header.php";
 </script>
 
 <!-- Template Oculto -->
-<div id="material-template" class="row mb-3 material-item" style="display: none;">
-    <div class="col-md-4">
+<div id="material-template" class="row material-item" style="display: none;">
+    <div class="col-md-4 mb-3">
         <label for="materiais" class="form-label">Material</label>
         <select class="form-select material-select" name="materiais[]">
             <option value="">Selecione um material</option>
@@ -266,20 +266,20 @@ require_once "includes/templates/header.php";
             ?>
         </select>
     </div>
-    <div class="col-md-2">
+    <div class="col-md-2 mb-3">
         <label for="quantidades" class="form-label">Quantidade</label>
         <input type="number" class="form-control quantidade-input" name="quantidades[]" step="1">
     </div>
-    <div class="col-md-2">
+    <div class="col-md-2 mb-3">
         <label for="precos" class="form-label">Preço Unitário</label>
         <input type="number" class="form-control preco-input" name="precos[]" step="0.01" readonly>
     </div>
-    <div class="col-md-2">
+    <div class="col-md-2 mb-3">
         <label for="subtotais" class="form-label">Subtotal</label>
         <input type="number" class="form-control subtotal-input" step="0.01" readonly>
     </div>
-    <div class="col-md-2 d-flex align-items-end">
-        <button type="button" class="btn btn-danger btn-remove-material">Remover</button>
+    <div class="col-md-2 d-flex align-items-end mb-3">
+        <button type="button" class="btn btn-responsive btn-danger btn-remove-material">Remover</button>
     </div>
 </div>
 

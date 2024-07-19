@@ -68,32 +68,40 @@ require_once "includes/templates/header.php";
         </div>
         <div id="materiais-container">
             <?php while ($material = $materiais->fetch_assoc()): ?>
-                <div class="row mb-3 material-item">
-                    <div class="col-md-4">
+                <div class="row align-items-end material-item">
+                    <div class="col-md-4 mb-3">
                         <label>Materiais</label>
                         <input type="hidden" name="materiais[]" value="<?= $material['id_material'] ?>">
                         <input type="text" class="form-control" value="<?= $material['nome'] ?>" disabled>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-2 mb-3">
                         <label for="quantidades">Quantidade</label>
                         <input type="number" class="form-control quantidade-input" name="quantidades[]" value="<?= $material['quantidade'] ?>" required>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-2 mb-3">
                         <label for="precos">Preço Unitário</label>
                         <input type="number" class="form-control preco-input" name="precos[]" value="<?= $material['preco_unitario'] ?>" step="0.01" readonly required>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-2 mb-3">
                         <label for="subtotais" class="form-label">Subtotal</label>
                         <input type="number" class="form-control subtotal-input" value="<?= $material['subtotal'] ?>" step="0.01" readonly>
                     </div>
-                    <div class="col-md-2 d-flex align-items-end">
-                        <button type="button" class="btn btn-danger btn-remove-material">Remover</button>
+                    <div class="col-md-2 d-flex align-items-end mb-3">
+                        <button type="button" class="btn btn-responsive btn-danger btn-remove-material">Remover</button>
                     </div>
                 </div>
             <?php endwhile; ?>
         </div>
-        <button type="button" class="btn btn-primary" id="btn-add-material">Adicionar Material</button>
-        <button type="submit" class="btn btn-success">Salvar Alterações</button>
+        <div class="row mb-5">
+            <div class="col-12">
+                <button type="button" class="btn btn-responsive btn-success" id="btn-add-material">Adicionar Material</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 text-center">
+                <button type="submit" class="btn btn-responsive btn-primary">Salvar Alterações</button>
+            </div>
+        </div>
     </form>
 </main>
 
@@ -171,8 +179,8 @@ require_once "includes/templates/header.php";
 </script>
 
 <!-- Template Oculto -->
-<div id="material-template" class="row mb-3 material-item" style="display: none;">
-    <div class="col-md-4">
+<div id="material-template" class="row material-item" style="display: none;">
+    <div class="col-md-4 mb-3">
         <label for="materiais" class="form-label">Material</label>
         <select class="form-select material-select" name="materiais[]" required>
             <option value="">Selecione um material</option>
@@ -186,20 +194,20 @@ require_once "includes/templates/header.php";
             ?>
         </select>
     </div>
-    <div class="col-md-2">
+    <div class="col-md-2 mb-3">
         <label for="quantidades" class="form-label">Quantidade</label>
         <input type="number" class="form-control quantidade-input" name="quantidades[]" step="1" required>
     </div>
-    <div class="col-md-2">
+    <div class="col-md-2 mb-3">
         <label for="precos" class="form-label">Preço Unitário</label>
         <input type="number" class="form-control preco-input" name="precos[]" step="0.01" readonly required>
     </div>
-    <div class="col-md-2">
+    <div class="col-md-2 mb-3">
         <label for="subtotais" class="form-label">Subtotal</label>
         <input type="number" class="form-control subtotal-input" step="0.01" readonly>
     </div>
-    <div class="col-md-2 d-flex align-items-end">
-        <button type="button" class="btn btn-danger btn-remove-material">Remover</button>
+    <div class="col-md-2 d-flex align-items-end mb-3">
+        <button type="button" class="btn btn-responsive btn-danger btn-remove-material">Remover</button>
     </div>
 </div>
 

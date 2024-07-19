@@ -73,38 +73,40 @@ require_once "includes/templates/header.php";
 ?>
 <div class="container mt-5 mb-5">
     <h2 class="mb-4">Vendas</h2>
-    <table id="vendasTable" class="table table-striped table-bordered">
-        <thead>
-            <tr>
-                <th>ID Venda</th>
-                <th>Data</th>
-                <th>Usuário</th>
-                <th>Material</th>
-                <th>Quantidade</th>
-                <th>Preço Unitário</th>
-                <th>Subtotal</th>
-                <th>Total Venda</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php while ($row = $res->fetch_object()): ?>
+    <div class="table-responsive">
+        <table id="vendasTable" class="table table-striped table-bordered">
+            <thead>
                 <tr>
-                    <td><?= $row->id_venda ?></td>
-                    <td><?= $row->data ?></td>
-                    <td><?= $row->nome_usuario ?></td>
-                    <td><?= $row->nome_material ?></td>
-                    <td><?= $row->quantidade ?></td>
-                    <td>R$<?= number_format($row->preco_unitario, 2, ',', '.') ?></td>
-                    <td>R$<?= number_format($row->subtotal, 2, ',', '.') ?></td>
-                    <td>R$<?= number_format($row->total, 2, ',', '.') ?></td>
-                    <td>
-                        <a href="alterar_venda.php?id_venda=<?= $row->id_venda ?>" class="btn btn-warning">Editar</a>
-                    </td>
+                    <th>ID Venda</th>
+                    <th>Data</th>
+                    <th>Usuário</th>
+                    <th>Material</th>
+                    <th>Quantidade</th>
+                    <th>Preço Unitário</th>
+                    <th>Subtotal</th>
+                    <th>Total Venda</th>
+                    <th>Ações</th>
                 </tr>
-            <?php endwhile; ?>
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                <?php while ($row = $res->fetch_object()): ?>
+                    <tr>
+                        <td><?= $row->id_venda ?></td>
+                        <td><?= $row->data ?></td>
+                        <td><?= $row->nome_usuario ?></td>
+                        <td><?= $row->nome_material ?></td>
+                        <td><?= $row->quantidade ?></td>
+                        <td>R$<?= number_format($row->preco_unitario, 2, ',', '.') ?></td>
+                        <td>R$<?= number_format($row->subtotal, 2, ',', '.') ?></td>
+                        <td>R$<?= number_format($row->total, 2, ',', '.') ?></td>
+                        <td>
+                            <a href="alterar_venda.php?id_venda=<?= $row->id_venda ?>" class="btn btn-warning">Editar</a>
+                        </td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script>

@@ -58,7 +58,7 @@ require_once "includes/templates/header.php";
             <label for="preco" class="form-label">Preço</label>
             <input type="number" step="0.01" class="form-control" id="preco" name="preco" value="<?= $material->preco ?>" required>
         </div>
-        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+        <button type="submit" class="btn btn-responsive btn-primary">Salvar Alterações</button>
     </form>
 </main>
 

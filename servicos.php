@@ -72,50 +72,52 @@ $res = $stmt->get_result();
 
 <div class="container mt-5 mb-5">
     <h2 class="mb-4">Serviços</h2>
-    <table id="servicosTable" class="table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>ID Serviço</th>
-                <th>Nome do Serviço</th>
-                <th>Usuário</th>
-                <th>Descrição do Serviço</th>
-                <th>Data Início</th>
-                <th>Data Fim</th>
-                <th>Nome do Material</th>
-                <th>Quantidade</th>
-                <th>Preço Unitário</th>
-                <th>Subtotal</th>
-                <th>Total</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php if ($res->num_rows == 0): ?>
+    <div class="table-responsive">
+        <table id="servicosTable" class="table table-bordered table-striped">
+            <thead>
                 <tr>
-                    <td colspan="11" class="text-center">Nenhum registro encontrado</td>
+                    <th>ID Serviço</th>
+                    <th>Nome do Serviço</th>
+                    <th>Usuário</th>
+                    <th>Descrição do Serviço</th>
+                    <th>Data Início</th>
+                    <th>Data Fim</th>
+                    <th>Nome do Material</th>
+                    <th>Quantidade</th>
+                    <th>Preço Unitário</th>
+                    <th>Subtotal</th>
+                    <th>Total</th>
+                    <th>Ações</th>
                 </tr>
-            <?php else: ?>
-                <?php while ($row = $res->fetch_object()): ?>
+            </thead>
+            <tbody>
+                <?php if ($res->num_rows == 0): ?>
                     <tr>
-                        <td><?= $row->id_servico ?></td>
-                        <td><?= $row->nome_servico ?></td>
-                        <td><?= $row->nome_usuario?></td>
-                        <td><?= $row->descricao_servico ?></td>
-                        <td><?= $row->data_inicio ?></td>
-                        <td><?= $row->data_fim ?></td>
-                        <td><?= $row->nome_material ?></td>
-                        <td><?= $row->quantidade ?></td>
-                        <td>R$<?= number_format($row->preco_unitario, 2, ',', '.') ?></td>
-                        <td>R$<?= number_format($row->subtotal, 2, ',', '.') ?></td>
-                        <td>R$<?= number_format($row->total, 2, ',', '.') ?></td>
-                        <td>
-                            <a href="alterar_servico.php?id_servico=<?= $row->id_servico ?>" class="btn btn-warning">Editar</a>
-                        </td>
+                        <td colspan="11" class="text-center">Nenhum registro encontrado</td>
                     </tr>
-                <?php endwhile; ?>
-            <?php endif; ?>
-        </tbody>
-    </table>
+                <?php else: ?>
+                    <?php while ($row = $res->fetch_object()): ?>
+                        <tr>
+                            <td><?= $row->id_servico ?></td>
+                            <td><?= $row->nome_servico ?></td>
+                            <td><?= $row->nome_usuario?></td>
+                            <td><?= $row->descricao_servico ?></td>
+                            <td><?= $row->data_inicio ?></td>
+                            <td><?= $row->data_fim ?></td>
+                            <td><?= $row->nome_material ?></td>
+                            <td><?= $row->quantidade ?></td>
+                            <td>R$<?= number_format($row->preco_unitario, 2, ',', '.') ?></td>
+                            <td>R$<?= number_format($row->subtotal, 2, ',', '.') ?></td>
+                            <td>R$<?= number_format($row->total, 2, ',', '.') ?></td>
+                            <td>
+                                <a href="alterar_servico.php?id_servico=<?= $row->id_servico ?>" class="btn btn-warning">Editar</a>
+                            </td>
+                        </tr>
+                    <?php endwhile; ?>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script>

@@ -72,8 +72,8 @@ require_once "includes/templates/header.php";
             do {
                 if ($servico->id_material) {
                     ?>
-                    <div class="row mb-3 material-item">
-                        <div class="col-md-4">
+                    <div class="row justify-content-end material-item">
+                        <div class="col-md-4 mb-3">
                             <label for="materiais" class="form-label">Material</label>
                             <select class="form-select material-select" name="materiais[]">
                                 <option value="<?= $servico->id_material ?>" data-preco="<?= $servico->preco_unitario ?>"><?= $servico->nome_material ?></option>
@@ -87,20 +87,20 @@ require_once "includes/templates/header.php";
                                 ?>
                             </select>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-2 mb-3">
                             <label for="quantidades" class="form-label">Quantidade</label>
                             <input type="number" class="form-control quantidade-input" name="quantidades[]" value="<?= $servico->quantidade ?>" step="1">
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-2 mb-3">
                             <label for="precos" class="form-label">Preço Unitário</label>
                             <input type="number" class="form-control preco-input" name="precos[]" value="<?= $servico->preco_unitario ?>" step="0.01" readonly>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-2 mb-3">
                             <label for="subtotais" class="form-label">Subtotal</label>
                             <input type="number" class="form-control subtotal-input" value="<?= $servico->subtotal ?>" step="0.01" readonly>
                         </div>
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button type="button" class="btn btn-danger btn-remove-material">Remover</button>
+                        <div class="col-md-2 d-flex align-items-end mb-3">
+                            <button type="button" class="btn btn-responsive btn-danger btn-remove-material">Remover</button>
                         </div>
                     </div>
                     <?php
@@ -109,7 +109,7 @@ require_once "includes/templates/header.php";
             ?>
         </div>
         <div class="mb-3">
-            <button type="button" class="btn btn-secondary" id="btn-add-material">Adicionar Material</button>
+            <button type="button" class="btn btn-responsive btn-success" id="btn-add-material">Adicionar Material</button>
         </div>
         <div class="mb-3">
             <label for="total" class="form-label">Total</label>
@@ -117,7 +117,7 @@ require_once "includes/templates/header.php";
         </div>
         <div class="row mb-3">
             <div class="col-md-12 text-center">
-                <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                <button type="submit" class="btn btn-responsive btn-primary">Salvar Alterações</button>
             </div>
         </div>
     </form>
@@ -244,7 +244,7 @@ require_once "includes/templates/header.php";
         <input type="number" class="form-control subtotal-input" step="0.01" readonly>
     </div>
     <div class="col-md-2 d-flex align-items-end">
-        <button type="button" class="btn btn-danger btn-remove-material">Remover</button>
+        <button type="button" class="btn btn-responsive btn-danger btn-remove-material">Remover</button>
     </div>
 </div>
 

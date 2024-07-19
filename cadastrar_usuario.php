@@ -37,7 +37,7 @@ require_once "includes/templates/header.php";
 ?>
 
 <div class="container mt-5 mb-5">
-    <h2>Cadastrar Novo Usuário</h2>
+    <h2 class="mb-4">Cadastrar Novo Usuário</h2>
     <form method="POST" action="cadastrar_usuario.php">
         <div class="mb-3">
             <label for="usuario" class="form-label">Usuário</label>
@@ -60,7 +60,12 @@ require_once "includes/templates/header.php";
                 <option value="almoxarifado">Almoxarifado</option>
             </select>
         </div>
-        <button type="submit" class="btn btn-success">Cadastrar Usuário</button>
+        <div class="row mt-4">
+            <div class="col-12">
+                <button type="submit" class="btn btn-responsive btn-primary">Cadastrar Usuário</button>
+            </div>
+        </div>
+        
     </form>
 </div>
 

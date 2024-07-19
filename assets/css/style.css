@@ -1,24 +1,8 @@
 @charset "UTF-8";
 
-/* Login */
-.card-custom {
-    height: 300px;
-    width: 100%; 
-}
+@media screen and (max-width: 768px) {
 
-.card-custom .card-block li {
-    list-style: none;
-    font-size: 0.8em;
+    button.btn.btn-responsive{
+        width: 100% !important;
+    }
 }
-
-.card-block {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 100%;
-}
-
-/* Menu */
-nav.navbar > div#navbarNav > span.nav-item > a.nav-link {
-    color: #FFF;
-} 

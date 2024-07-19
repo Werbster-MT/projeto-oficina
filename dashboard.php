@@ -79,7 +79,7 @@ require_once "includes/templates/header.php";
     <h2 class="mb-4">Dashboard</h2>
 
     <form method="POST" class="mb-4">
-        <div class="row  d-flex align-items-end mb-4">
+        <div class="row d-flex align-items-end mb-4">
             <div class="col-12 col-md-2">
                 <label for="mes" class="form-label">Mês</label>
                 <select class="form-select" id="mes" name="mes">
@@ -96,15 +96,15 @@ require_once "includes/templates/header.php";
                     <?php endfor; ?>
                 </select>
             </div>
-            <div class="col-12 col-md-2 d-flex justify-content-end">
-                <button type="submit" class="btn btn-primary">Filtrar</button>
+            <div class="col-12 col-md-2 d-flex justify-content-end mt-4">
+                <button type="submit" class="btn btn-responsive btn-primary ">Filtrar</button>
             </div>
         </div>
     </form>
 
     <div class="row mb-4">
         <div class="col-md-6">
-            <div class="card text-white bg-primary mb-3">
+            <div class="card text-white bg-success mb-3">
                 <div class="card-header">Vendas</div>
                 <div class="card-body">
                     <h5 class="card-title">Total de Vendas: <?= $vendas['total_vendas'] ?></h5>
@@ -113,7 +113,7 @@ require_once "includes/templates/header.php";
             </div>
         </div>
         <div class="col-md-6">
-            <div class="card text-white bg-success mb-3">
+            <div class="card text-white bg-secondary mb-3">
                 <div class="card-header">Serviços</div>
                 <div class="card-body">
                     <h5 class="card-title">Total de Serviços: <?= $servicos['total_servicos'] ?></h5>
