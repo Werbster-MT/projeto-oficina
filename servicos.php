@@ -1,19 +1,29 @@
 <?php
+// Verifica o status da sessão e inicia a sessão se ainda não estiver iniciada
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
+
+// Verifica se o tipo de usuário está definido na sessão. Se não estiver, redireciona para a página de login
 if (empty($_SESSION['tipo'])) {
     header("Location: index.php");
     exit();
 } else {
+    // Se o tipo de usuário estiver definido, armazena em variáveis
     $tipo = $_SESSION['tipo'];
     $usuario = $_SESSION['usuario'];
 }
 
+// Define a página atual para fins de navegação ou estilo
 $currentPage = 'servicos';
+
+// Inclui o cabeçalho da página
 require_once "includes/templates/header.php";
+
+// Inclui a configuração do banco de dados
 include_once "includes/config/banco.php";
 
+// Monta a consulta SQL baseada no tipo de usuário (admin ou comum)
 if ($tipo == 'admin') {
     // Administrador: visualizar todos os serviços
     $query_servicos = "SELECT
@@ -60,12 +70,15 @@ if ($tipo == 'admin') {
                         u.usuario = ?";
 }
 
+// Prepara a consulta SQL
 $stmt = $banco->prepare($query_servicos);
 
+// Se o usuário não for administrador, adiciona o parâmetro de usuário na consulta
 if ($tipo != 'admin') {
     $stmt->bind_param('s', $usuario);
 }
 
+// Executa a consulta
 $stmt->execute();
 $res = $stmt->get_result();
 ?>
@@ -92,10 +105,12 @@ $res = $stmt->get_result();
             </thead>
             <tbody>
                 <?php if ($res->num_rows == 0): ?>
+                    <!-- Caso não haja registros, exibe uma linha com a mensagem "Nenhum registro encontrado" -->
                     <tr>
                         <td colspan="11" class="text-center">Nenhum registro encontrado</td>
                     </tr>
                 <?php else: ?>
+                    <!-- Loop para exibir os dados retornados pela consulta -->
                     <?php while ($row = $res->fetch_object()): ?>
                         <tr>
                             <td><?= $row->id_servico ?></td>
@@ -121,14 +136,17 @@ $res = $stmt->get_result();
 </div>
 
 <script>
+// Inicializa o DataTable com tradução para o português
 $(document).ready(function() {
-    $('#servicosTable').DataTable(
-        {"language": {
-                "url": "assets/js/pt-BR.json"
-            }
+    $('#servicosTable').DataTable({
+        "language": {
+            "url": "assets/js/pt-BR.json" // URL para o arquivo de tradução
         }
-    );
+    });
 });
 </script>
 
-<?php require_once "includes/templates/footer.php"; ?>
+<?php
+// Inclui o rodapé da página
+require_once "includes/templates/footer.php";
+?>

@@ -1,18 +1,26 @@
 <?php
+// Inicia a sessão se ainda não tiver sido iniciada
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
+
+// Verifica se a sessão está vazia, redireciona para index.php se estiver
 if (empty($_SESSION)) {
     header("Location: index.php");
     exit();
 }
+
+// Inclui o arquivo de configuração do banco de dados
 include_once "includes/config/banco.php";
 
+// Recupera mensagens de status da sessão, se existirem
 $statusMessage = isset($_SESSION['statusMessage']) ? $_SESSION['statusMessage'] : '';
 $statusType = isset($_SESSION['statusType']) ? $_SESSION['statusType'] : '';
 unset($_SESSION['statusMessage'], $_SESSION['statusType']);
 
+// Verifica se a solicitação é do tipo POST
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Recebe os dados do formulário
     $data = $_POST["data"];
     $total = $_POST["total"];
     $materiais = $_POST["materiais"];
@@ -20,6 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $precos = $_POST["precos"];
     $user = $_SESSION["usuario"];
 
+    // Inicia uma transação
     $banco->begin_transaction();
     try {
         $estoqueSuficiente = true;
@@ -35,6 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt_verifica_estoque->fetch();
             $stmt_verifica_estoque->close();
 
+            // Verifica se a quantidade desejada é maior que a quantidade em estoque
             if ($quantidade > $quantidade_estoque) {
                 $estoqueSuficiente = false;
                 break;
@@ -42,7 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         if ($estoqueSuficiente) {
-            // Inserir a venda
+            // Inserir a venda na tabela `venda`
             $query_venda = "INSERT INTO venda (data, total, usuario) VALUES (?, ?, ?)";
             $stmt = $banco->prepare($query_venda);
             $stmt->bind_param("sds", $data, $total, $user);
@@ -62,7 +72,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $preco = $precos[$index];
                 $subtotal = $quantidade * $preco;
 
-                // Inserir na tabela venda_material
+                // Inserir na tabela `venda_material`
                 $stmt_material->bind_param("iiidd", $id_venda, $id_material, $quantidade, $preco, $subtotal);
                 $stmt_material->execute();
 
@@ -88,12 +98,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['statusType'] = "danger";
     }
 
+    // Redireciona para a página de adicionar venda após a tentativa de inserção
     header("Location: adicionar_venda.php");
     exit();
 }
 ?>
 
 <?php 
+// Define a página atual e inclui o cabeçalho
 $currentPage = 'adicionar_venda';
 require_once "includes/templates/header.php";
 ?>
@@ -101,10 +113,12 @@ require_once "includes/templates/header.php";
 <div class="container mt-5 mb-5">
     <h2>Adicionar Venda</h2>
     <form method="POST">
+        <!-- Campo para a data da venda -->
         <div class="mb-3">
             <label for="data" class="form-label">Data</label>
             <input type="date" class="form-control" id="data" name="data" required>
         </div>
+        <!-- Contêiner para adicionar materiais -->
         <div id="materiais-container">
             <div class="row align-items-end material-item">
                 <div class="col-md-4 mb-3">
@@ -112,6 +126,7 @@ require_once "includes/templates/header.php";
                     <select class="form-select material-select" name="materiais[]" required>
                         <option value="">Selecione um material</option>
                         <?php
+                            // Recupera a lista de materiais do banco de dados
                             $query_materiais = "SELECT id_material, nome, preco FROM material";
                             $res_materiais = $banco->query($query_materiais);
 
@@ -138,13 +153,16 @@ require_once "includes/templates/header.php";
                 </div>
             </div>
         </div>
+        <!-- Botão para adicionar mais materiais -->
         <div class="mb-3">
             <button type="button" class="btn btn-responsive btn-success" id="btn-add-material">Adicionar Material</button>
         </div>
+        <!-- Campo para o total da venda -->
         <div class="mb-5">
             <label for="total" class="form-label">Total</label>
             <input type="number" class="form-control" id="total" name="total" step="0.01" readonly required>
         </div>
+        <!-- Botão para submeter o formulário -->
         <div class="row mb-3">
             <div class="col-md-12 text-center">
                 <button type="submit" class="btn btn-responsive btn-primary">Salvar Venda</button>
@@ -153,7 +171,7 @@ require_once "includes/templates/header.php";
     </form>
 </div>
 
-<!-- Modal -->
+<!-- Modal para exibir mensagens de status -->
 <div class="modal fade" id="statusModal" tabindex="-1" aria-labelledby="statusModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -173,11 +191,13 @@ require_once "includes/templates/header.php";
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Exibe o modal de status se houver uma mensagem de status
         <?php if (!empty($statusMessage)): ?>
             var statusModal = new bootstrap.Modal(document.getElementById('statusModal'));
             statusModal.show();
         <?php endif; ?>
 
+        // Adiciona novo material ao contêiner
         document.getElementById('btn-add-material').addEventListener('click', function() {
             var container = document.getElementById('materiais-container');
             var template = document.getElementById('material-template').cloneNode(true);
@@ -186,6 +206,7 @@ require_once "includes/templates/header.php";
             container.appendChild(template);
         });
 
+        // Remove material do contêiner
         document.addEventListener('click', function(e) {
             if (e.target && e.target.classList.contains('btn-remove-material')) {
                 e.target.closest('.material-item').remove();
@@ -193,6 +214,7 @@ require_once "includes/templates/header.php";
             }
         });
 
+        // Atualiza preço e subtotal quando um material é selecionado
         document.addEventListener('change', function(e) {
             if (e.target && e.target.classList.contains('material-select')) {
                 var selectedOption = e.target.options[e.target.selectedIndex];
@@ -204,6 +226,7 @@ require_once "includes/templates/header.php";
             }
         });
 
+        // Atualiza subtotal e total quando a quantidade muda
         document.addEventListener('input', function(e) {
             if (e.target && e.target.classList.contains('quantidade-input')) {
                 var quantidade = e.target.value;
@@ -216,6 +239,7 @@ require_once "includes/templates/header.php";
             }
         });
 
+        // Função para atualizar o total da venda
         function updateTotal() {
             var total = 0;
             document.querySelectorAll('.subtotal-input').forEach(function(subtotalInput) {
@@ -226,13 +250,14 @@ require_once "includes/templates/header.php";
     });
 </script>
 
-<!-- Template Oculto -->
+<!-- Template Oculto para adicionar novos materiais -->
 <div id="material-template" class="row material-item" style="display: none;">
     <div class="col-md-4 mb-3">
         <label for="materiais" class="form-label">Material</label>
         <select class="form-select material-select" name="materiais[]" required>
             <option value="">Selecione um material</option>
             <?php
+                // Recupera a lista de materiais do banco de dados
                 $query_materiais = "SELECT id_material, nome, preco FROM material";
                 $res_materiais = $banco->query($query_materiais);
 

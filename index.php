@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <!-- Inclusão do CSS do Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Inclusão de um arquivo de estilo CSS personalizado -->
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
@@ -15,9 +17,11 @@
                     <div class="card shadow-lg mt-5">
                         <div class="card-body p-5">
                             <h1 class="fs-4 card-title fw-bold mb-4 text-center">Login</h1>
+                            <!-- Verificação de mensagens de erro e exibição das mesmas -->
                             <?php 
                                 if (isset($_GET['error'])) {
-                                    echo "<div class='alert alert-danger'>";                                    
+                                    echo "<div class='alert alert-danger'>";
+                                    // Exibição de mensagens de erro específicas com base no valor do parâmetro 'error'
                                     switch ($_GET['error']) {
                                         case 'empty':
                                             echo 'Por favor, preencha todos os campos.';
@@ -26,11 +30,13 @@
                                             echo 'Senha incorreta!';
                                             break;
                                         case 'user_not_found':
-                                            echo 'Usuário não cadastrado! Por favor entre em contanto com o administrador.';
+                                            echo 'Usuário não cadastrado! Por favor entre em contato com o administrador.';
                                             break;
                                     }
                                     echo "</div>";
-                                }?>
+                                }
+                            ?>
+                            <!-- Formulário de login -->
                             <form method="POST" class="needs-validation" action="login.php">
                                 <div class="mb-3">
                                     <label class="mb-2 text-muted fw-semibold" for="usuario">Usuário</label>
@@ -60,6 +66,7 @@
         </div>
     </section>
 
+    <!-- Inclusão do JS do Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>

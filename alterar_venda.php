@@ -1,21 +1,31 @@
 <?php
+// Inicia a sessão se ainda não tiver sido iniciada
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
+
+// Verifica se a sessão está vazia, redireciona para index.php se estiver
 if (empty($_SESSION)) {
     header("Location: index.php");
     exit();
 }
+
+// Define a página atual
 $currentPage = "alterar_venda";
+
+// Inclui o arquivo de configuração do banco de dados
 include_once "includes/config/banco.php";
 
+// Obtém o ID da venda da URL
 $id_venda = $_GET['id_venda'] ?? null;
 
+// Redireciona para a página de vendas se o ID da venda não for fornecido
 if (!$id_venda) {
     header("Location: vendas.php");
     exit();
 }
 
+// Prepara a query para selecionar os dados da venda
 $query_venda = "SELECT
                     v.id_venda,
                     v.data,
@@ -47,25 +57,31 @@ $stmt->bind_param('i', $id_venda);
 $stmt->execute();
 $materiais = $stmt->get_result();
 
+// Recupera mensagens de status da sessão, se existirem
 $statusMessage = isset($_SESSION['statusMessage']) ? $_SESSION['statusMessage'] : '';
 $statusType = isset($_SESSION['statusType']) ? $_SESSION['statusType'] : '';
 unset($_SESSION['statusMessage'], $_SESSION['statusType']);
 
+// Inclui o cabeçalho da página
 require_once "includes/templates/header.php";
 ?>
 
 <main class="container mt-5 mb-5">
     <h2>Editar Venda</h2>
     <form method="POST" action="atualizar_venda.php">
+        <!-- Campo oculto para o ID da venda -->
         <input type="hidden" name="id_venda" value="<?= $venda->id_venda ?>">
+        <!-- Campo para a data da venda -->
         <div class="mb-3">
             <label for="data" class="form-label">Data da Venda</label>
             <input type="datetime-local" class="form-control" id="data" name="data" value="<?= date('Y-m-d\TH:i', strtotime($venda->data)) ?>" required>
         </div>
+        <!-- Campo para o total da venda -->
         <div class="mb-3">
             <label for="total" class="form-label">Total</label>
             <input type="number" class="form-control" id="total" name="total" step="0.01" value="<?= $venda->total ?>" readonly required>
         </div>
+        <!-- Contêiner para adicionar materiais -->
         <div id="materiais-container">
             <?php while ($material = $materiais->fetch_assoc()): ?>
                 <div class="row align-items-end material-item">
@@ -92,11 +108,13 @@ require_once "includes/templates/header.php";
                 </div>
             <?php endwhile; ?>
         </div>
+        <!-- Botão para adicionar mais materiais -->
         <div class="row mb-5">
             <div class="col-12">
                 <button type="button" class="btn btn-responsive btn-success" id="btn-add-material">Adicionar Material</button>
             </div>
         </div>
+        <!-- Botão para submeter o formulário -->
         <div class="row">
             <div class="col-12 text-center">
                 <button type="submit" class="btn btn-responsive btn-primary">Salvar Alterações</button>
@@ -105,7 +123,7 @@ require_once "includes/templates/header.php";
     </form>
 </main>
 
-<!-- Modal -->
+<!-- Modal para exibir mensagens de status -->
 <div class="modal fade" id="statusModal" tabindex="-1" aria-labelledby="statusModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -125,11 +143,13 @@ require_once "includes/templates/header.php";
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Exibe o modal de status se houver uma mensagem de status
         <?php if (!empty($statusMessage)): ?>
             var statusModal = new bootstrap.Modal(document.getElementById('statusModal'));
             statusModal.show();
         <?php endif; ?>
 
+        // Adiciona novo material ao contêiner
         document.getElementById('btn-add-material').addEventListener('click', function() {
             var container = document.getElementById('materiais-container');
             var template = document.getElementById('material-template').cloneNode(true);
@@ -138,6 +158,7 @@ require_once "includes/templates/header.php";
             container.appendChild(template);
         });
 
+        // Remove material do contêiner
         document.addEventListener('click', function(e) {
             if (e.target && e.target.classList.contains('btn-remove-material')) {
                 e.target.closest('.material-item').remove();
@@ -145,6 +166,7 @@ require_once "includes/templates/header.php";
             }
         });
 
+        // Atualiza preço e subtotal quando um material é selecionado
         document.addEventListener('change', function(e) {
             if (e.target && e.target.classList.contains('material-select')) {
                 var selectedOption = e.target.options[e.target.selectedIndex];
@@ -156,6 +178,7 @@ require_once "includes/templates/header.php";
             }
         });
 
+        // Atualiza subtotal e total quando a quantidade muda
         document.addEventListener('input', function(e) {
             if (e.target && e.target.classList.contains('quantidade-input')) {
                 var quantidade = e.target.value;
@@ -168,6 +191,7 @@ require_once "includes/templates/header.php";
             }
         });
 
+        // Função para atualizar o total da venda
         function updateTotal() {
             var total = 0;
             document.querySelectorAll('.subtotal-input').forEach(function(subtotalInput) {
@@ -178,13 +202,14 @@ require_once "includes/templates/header.php";
     });
 </script>
 
-<!-- Template Oculto -->
+<!-- Template Oculto para adicionar novos materiais -->
 <div id="material-template" class="row material-item" style="display: none;">
     <div class="col-md-4 mb-3">
         <label for="materiais" class="form-label">Material</label>
         <select class="form-select material-select" name="materiais[]" required>
             <option value="">Selecione um material</option>
             <?php
+                // Recupera a lista de materiais do banco de dados
                 $query_materiais = "SELECT id_material, nome, preco FROM material";
                 $res_materiais = $banco->query($query_materiais);
 
@@ -211,4 +236,7 @@ require_once "includes/templates/header.php";
     </div>
 </div>
 
-<?php include_once "includes/templates/footer.php"; ?>
+<?php 
+// Inclui o rodapé da página
+include_once "includes/templates/footer.php"; 
+?>

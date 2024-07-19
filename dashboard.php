@@ -1,16 +1,22 @@
 <?php
+// Inicia a sessão se ainda não tiver sido iniciada
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
+
+// Verifica se a sessão está vazia ou se o usuário não é admin, redireciona para index.php se for o caso
 if (empty($_SESSION) || $_SESSION['tipo'] != 'admin') {
     header("Location: index.php");
     exit();
 }
+
+// Inclui o arquivo de configuração do banco de dados
 include_once "includes/config/banco.php";
 
+// Define a página atual
 $currentPage = 'dashboard';
 
-// Define o mês e o ano padrão como o mês e ano atual
+// Define o mês e o ano padrão como o mês e ano atual, ou usa os valores enviados via POST
 $mes = isset($_POST['mes']) ? (int)$_POST['mes'] : date('m');
 $ano = isset($_POST['ano']) ? $_POST['ano'] : date('Y');
 
@@ -62,22 +68,26 @@ $stmt_servicos->bind_param('ii', $mes, $ano);
 $stmt_servicos->execute();
 $res_faturamento_diario_servicos = $stmt_servicos->get_result();
 
+// Array para armazenar o faturamento diário de vendas
 $faturamento_diario_vendas = [];
 while ($row = $res_faturamento_diario_vendas->fetch_assoc()) {
     $faturamento_diario_vendas[] = $row;
 }
 
+// Array para armazenar o faturamento diário de serviços
 $faturamento_diario_servicos = [];
 while ($row = $res_faturamento_diario_servicos->fetch_assoc()) {
     $faturamento_diario_servicos[] = $row;
 }
 
+// Inclui o cabeçalho da página
 require_once "includes/templates/header.php";
 ?>
 
 <div class="container mt-5 mb-5">
     <h2 class="mb-4">Dashboard</h2>
 
+    <!-- Formulário para filtrar por mês e ano -->
     <form method="POST" class="mb-4">
         <div class="row d-flex align-items-end mb-4">
             <div class="col-12 col-md-2">
@@ -97,11 +107,12 @@ require_once "includes/templates/header.php";
                 </select>
             </div>
             <div class="col-12 col-md-2 d-flex justify-content-end mt-4">
-                <button type="submit" class="btn btn-responsive btn-primary ">Filtrar</button>
+                <button type="submit" class="btn btn-responsive btn-primary">Filtrar</button>
             </div>
         </div>
     </form>
 
+    <!-- Cartões de resumo de vendas e serviços -->
     <div class="row mb-4">
         <div class="col-md-6">
             <div class="card text-white bg-success mb-3">
@@ -123,6 +134,7 @@ require_once "includes/templates/header.php";
         </div>
     </div>
 
+    <!-- Gráficos de faturamento diário -->
     <div class="row">
         <div class="col-md-6">
             <h3>Faturamento Diário de Vendas (<?= $meses[(int)$mes] ?> de <?= $ano ?>)</h3>
@@ -134,6 +146,7 @@ require_once "includes/templates/header.php";
         </div>
     </div>
 
+    <!-- Resumo do faturamento total do mês -->
     <div class="row mt-5">
         <div class="col-md-6">
             <h4>Faturamento Total do Mês (Vendas)</h4>
@@ -146,6 +159,7 @@ require_once "includes/templates/header.php";
     </div>
 </div>
 
+<!-- Inclusão do Chart.js para gráficos -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     $(document).ready(function() {
@@ -197,4 +211,7 @@ require_once "includes/templates/header.php";
     });
 </script>
 
-<?php include_once "includes/templates/footer.php"; ?>
+<?php 
+// Inclui o rodapé da página
+include_once "includes/templates/footer.php"; 
+?>

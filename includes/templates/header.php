@@ -21,6 +21,7 @@
     
 </head>
 <header>
+    <!-- Header nav menu -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark bg- p-3">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">Oficina Auto</a>

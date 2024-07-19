@@ -1,15 +1,22 @@
 <?php
+// Inicia a sessão se ainda não tiver sido iniciada
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
+
+// Verifica se a sessão está vazia, redireciona para index.php se estiver
 if (empty($_SESSION)) {
     header("Location: index.php");
     exit();
 }
+
+// Inclui o arquivo de configuração do banco de dados
 include_once "includes/config/banco.php";
 
+// Obtém o ID do serviço da URL
 $id_servico = $_GET['id_servico'];
 
+// Prepara a query para selecionar os dados do serviço e dos materiais associados
 $query_servico = "SELECT
                     s.id_servico,
                     s.nome AS nome_servico,
@@ -35,40 +42,52 @@ $stmt->execute();
 $res = $stmt->get_result();
 $servico = $res->fetch_object();
 
+// Recupera mensagens de status da sessão, se existirem
 $statusMessage = isset($_SESSION['statusMessage']) ? $_SESSION['statusMessage'] : '';
 $statusType = isset($_SESSION['statusType']) ? $_SESSION['statusType'] : '';
 unset($_SESSION['statusMessage'], $_SESSION['statusType']);
 
+// Define a página atual
 $currentPage = "alterar_servicos";
+
+// Inclui o cabeçalho da página
 require_once "includes/templates/header.php";
 ?>
 
 <main class="container mt-5 mb-5">
     <h2>Editar Serviço</h2>
     <form method="POST" action="atualizar_servico.php">
+        <!-- Campo oculto para o ID do serviço -->
         <input type="hidden" name="id_servico" value="<?= $servico->id_servico ?>">
+        <!-- Campo para o nome do serviço -->
         <div class="mb-3">
             <label for="nome_servico" class="form-label">Nome do Serviço</label>
             <input type="text" class="form-control" id="nome_servico" name="nome_servico" value="<?= $servico->nome_servico ?>" required>
         </div>
+        <!-- Campo para a descrição do serviço -->
         <div class="mb-3">
             <label for="descricao_servico" class="form-label">Descrição</label>
             <textarea class="form-control" id="descricao_servico" name="descricao_servico" required><?= $servico->descricao_servico ?></textarea>
         </div>
+        <!-- Campo para a data de início do serviço -->
         <div class="mb-3">
             <label for="data_inicio" class="form-label">Data Início</label>
             <input type="date" class="form-control" id="data_inicio" name="data_inicio" value="<?= (new DateTime($servico->data_inicio))->format('Y-m-d') ?>" required>
         </div>
+        <!-- Campo para a data de término do serviço -->
         <div class="mb-3">
             <label for="data_fim" class="form-label">Data Fim</label>
             <input type="date" class="form-control" id="data_fim" name="data_fim" value="<?= (new DateTime($servico->data_fim))->format('Y-m-d') ?>" required>
         </div>
+        <!-- Campo para o valor da mão de obra -->
         <div class="mb-3">
             <label for="valor_mao_obra" class="form-label">Valor da Mão de Obra</label>
             <input type="number" class="form-control" id="valor_mao_obra" name="valor_mao_obra" value="<?= $servico->total ?>" step="0.01" required>
         </div>
+        <!-- Contêiner para adicionar materiais -->
         <div id="materiais-container">
             <?php
+            // Loop para adicionar os materiais associados ao serviço
             do {
                 if ($servico->id_material) {
                     ?>
@@ -108,13 +127,16 @@ require_once "includes/templates/header.php";
             } while ($servico = $res->fetch_object());
             ?>
         </div>
+        <!-- Botão para adicionar mais materiais -->
         <div class="mb-3">
             <button type="button" class="btn btn-responsive btn-success" id="btn-add-material">Adicionar Material</button>
         </div>
+        <!-- Campo para o total do serviço -->
         <div class="mb-3">
             <label for="total" class="form-label">Total</label>
             <input type="number" class="form-control" id="total" name="total" step="0.01" readonly required>
         </div>
+        <!-- Botão para submeter o formulário -->
         <div class="row mb-3">
             <div class="col-md-12 text-center">
                 <button type="submit" class="btn btn-responsive btn-primary">Salvar Alterações</button>
@@ -123,7 +145,7 @@ require_once "includes/templates/header.php";
     </form>
 </main>
 
-<!-- Modal -->
+<!-- Modal para exibir mensagens de status -->
 <div class="modal fade" id="statusModal" tabindex="-1" aria-labelledby="statusModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -143,11 +165,13 @@ require_once "includes/templates/header.php";
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Exibe o modal de status se houver uma mensagem de status
         <?php if (!empty($statusMessage)): ?>
             var statusModal = new bootstrap.Modal(document.getElementById('statusModal'));
             statusModal.show();
         <?php endif; ?>
 
+        // Adiciona novo material ao contêiner
         document.getElementById('btn-add-material').addEventListener('click', function() {
             var container = document.getElementById('materiais-container');
             var template = document.getElementById('material-template').cloneNode(true);
@@ -156,6 +180,7 @@ require_once "includes/templates/header.php";
             container.appendChild(template);
         });
 
+        // Remove material do contêiner
         document.addEventListener('click', function(e) {
             if (e.target && e.target.classList.contains('btn-remove-material')) {
                 e.target.closest('.material-item').remove();
@@ -163,6 +188,7 @@ require_once "includes/templates/header.php";
             }
         });
 
+        // Atualiza preço e subtotal quando um material é selecionado
         document.addEventListener('change', function(e) {
             if (e.target && e.target.classList.contains('material-select')) {
                 var selectedOption = e.target.options[e.target.selectedIndex];
@@ -181,6 +207,7 @@ require_once "includes/templates/header.php";
             }
         });
 
+        // Atualiza subtotal e total quando a quantidade muda
         document.addEventListener('input', function(e) {
             if (e.target && e.target.classList.contains('quantidade-input')) {
                 var materialItem = e.target.closest('.material-item');
@@ -200,6 +227,7 @@ require_once "includes/templates/header.php";
             }
         });
 
+        // Função para atualizar o total do serviço
         function updateTotal() {
             var total = 0;
             document.querySelectorAll('.subtotal-input').forEach(function(subtotalInput) {
@@ -215,7 +243,7 @@ require_once "includes/templates/header.php";
     });
 </script>
 
-<!-- Template Oculto -->
+<!-- Template Oculto para adicionar novos materiais -->
 <div id="material-template" class="row mb-3 material-item" style="display: none;">
     <div class="col-md-4">
         <label for="materiais" class="form-label">Material</label>
@@ -248,4 +276,7 @@ require_once "includes/templates/header.php";
     </div>
 </div>
 
-<?php include_once "includes/templates/footer.php"; ?>
+<?php 
+// Inclui o rodapé da página
+include_once "includes/templates/footer.php"; 
+?>

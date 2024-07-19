@@ -1,15 +1,22 @@
 <?php
+// Inclui o arquivo de configuração do banco de dados
 include_once "includes/config/banco.php";
+
+// Verifica o status da sessão e inicia a sessão se ainda não estiver iniciada
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-if(empty($_SESSION)) {
+// Verifica se a sessão está vazia. Se estiver, redireciona para a página de login
+if (empty($_SESSION)) {
     header("Location: index.php");
     exit();
 }
 
+// Define a página atual para fins de navegação ou estilo
 $currentPage = "vendas";
+
+// Obtém o nome de usuário e tipo de usuário da sessão
 $usuario = $_SESSION["usuario"];
 $tipo = $_SESSION["tipo"];
 
@@ -56,21 +63,27 @@ if ($tipo == 'admin') {
                         u.usuario = ?";
 }
 
+// Prepara a consulta SQL
 $stmt = $banco->prepare($query_vendas);
 
+// Se o usuário não for administrador, adiciona o parâmetro de usuário na consulta
 if ($tipo != 'admin') {
     $stmt->bind_param('s', $usuario);
 }
 
+// Executa a consulta
 $stmt->execute();
 $res = $stmt->get_result();
 
+// Verifica se houve algum erro na execução da consulta
 if ($stmt->error) {
     echo "Erro na consulta: " . $stmt->error;
 }
 
+// Inclui o cabeçalho da página
 require_once "includes/templates/header.php";
 ?>
+
 <div class="container mt-5 mb-5">
     <h2 class="mb-4">Vendas</h2>
     <div class="table-responsive">
@@ -89,6 +102,7 @@ require_once "includes/templates/header.php";
                 </tr>
             </thead>
             <tbody>
+                <!-- Loop para exibir os dados retornados pela consulta -->
                 <?php while ($row = $res->fetch_object()): ?>
                     <tr>
                         <td><?= $row->id_venda ?></td>
@@ -110,14 +124,15 @@ require_once "includes/templates/header.php";
 </div>
 
 <script>
-    $(document).ready(function() {
-        $('#vendasTable').DataTable({
-            "language": {
-                "url": "assets/js/pt-BR.json"
-            }
-        });
+// Inicializa o DataTable com tradução para o português
+$(document).ready(function() {
+    $('#vendasTable').DataTable({
+        "language": {
+            "url": "assets/js/pt-BR.json" // URL para o arquivo de tradução
+        }
     });
+});
 </script>
 
-<!-- Footer -->
+<!-- Inclui o rodapé da página -->
 <?php include_once "includes/templates/footer.php"?>

@@ -1,14 +1,21 @@
 <?php
+// Inicia a sessão se ainda não tiver sido iniciada
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
+
+// Verifica se a sessão está vazia, redireciona para index.php se estiver
 if (empty($_SESSION)) {
     header("Location: index.php");
     exit();
 }
+
+// Inclui o arquivo de configuração do banco de dados
 include_once "includes/config/banco.php";
 
+// Verifica se a solicitação é do tipo POST
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Recebe os dados do formulário
     $id_venda = $_POST["id_venda"];
     $data = $_POST["data"];
     $total = $_POST["total"];
@@ -17,6 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $precos = $_POST["precos"];
     $user = $_SESSION["usuario"];
 
+    // Inicia uma transação
     $banco->begin_transaction();
     try {
         // Restaurar os materiais antigos ao estoque
@@ -26,6 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt_materiais_antigos->execute();
         $res_materiais_antigos = $stmt_materiais_antigos->get_result();
 
+        // Atualiza o estoque para adicionar as quantidades antigas
         while ($material_antigo = $res_materiais_antigos->fetch_assoc()) {
             $query_restore_estoque = "UPDATE material SET quantidade = quantidade + ? WHERE id_material = ?";
             $stmt_restore_estoque = $banco->prepare($query_restore_estoque);
@@ -45,6 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt_verifica_estoque->fetch();
             $stmt_verifica_estoque->close();
 
+            // Verifica se a quantidade desejada é maior que a quantidade em estoque
             if ($quantidade > $quantidade_estoque) {
                 $estoqueSuficiente = false;
                 break;
@@ -52,13 +62,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         if ($estoqueSuficiente) {
-            // Atualizar a venda
+            // Atualizar os dados da venda
             $query_venda = "UPDATE venda SET data = ?, total = ?, usuario = ? WHERE id_venda = ?";
             $stmt = $banco->prepare($query_venda);
             $stmt->bind_param("sdsi", $data, $total, $user, $id_venda);
             $stmt->execute();
 
-            // Deletar os materiais antigos
+            // Deletar os materiais antigos associados à venda
             $query_delete_material = "DELETE FROM venda_material WHERE id_venda = ?";
             $stmt_delete_material = $banco->prepare($query_delete_material);
             $stmt_delete_material->bind_param("i", $id_venda);
@@ -102,6 +112,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['statusType'] = "danger";
     }
 
+    // Redireciona para a página de alteração da venda após a tentativa de atualização
     header("Location: alterar_venda.php?id_venda=" . $id_venda);
     exit();
 }

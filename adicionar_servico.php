@@ -1,18 +1,26 @@
 <?php
+// Inicia a sessão se ainda não tiver sido iniciada
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
+
+// Verifica se a sessão está vazia, redireciona para index.php se estiver
 if (empty($_SESSION)) {
     header("Location: index.php");
     exit();
 }
+
+// Inclui o arquivo de configuração do banco de dados
 include_once "includes/config/banco.php";
 
+// Recupera mensagens de status da sessão, se existirem
 $statusMessage = isset($_SESSION['statusMessage']) ? $_SESSION['statusMessage'] : '';
 $statusType = isset($_SESSION['statusType']) ? $_SESSION['statusType'] : '';
 unset($_SESSION['statusMessage'], $_SESSION['statusType']);
 
+// Verifica se a solicitação é do tipo POST
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Recebe os dados do formulário
     $nome_servico = $_POST["nome_servico"];
     $descricao_servico = $_POST["descricao_servico"];
     $data_inicio = $_POST["data_inicio"];
@@ -24,6 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $precos = isset($_POST["precos"]) ? $_POST["precos"] : [];
     $user = $_SESSION["usuario"];
 
+    // Inicia uma transação
     $banco->begin_transaction();
     try {
         $estoqueSuficiente = true;
@@ -39,6 +48,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt_verifica_estoque->fetch();
             $stmt_verifica_estoque->close();
 
+            // Verifica se a quantidade desejada é maior que a quantidade em estoque
             if ($quantidade > $quantidade_estoque) {
                 $estoqueSuficiente = false;
                 break;
@@ -46,7 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         if ($estoqueSuficiente) {
-            // Inserir o serviço
+            // Inserir o serviço na tabela `servico`
             $query_servico = "INSERT INTO servico (nome, descricao, data_inicio, data_fim, total, usuario) VALUES (?, ?, ?, ?, ?, ?)";
             $stmt = $banco->prepare($query_servico);
             $stmt->bind_param("ssssds", $nome_servico, $descricao_servico, $data_inicio, $data_fim, $total, $user);
@@ -67,7 +77,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $preco = $precos[$index];
                     $subtotal = $quantidade * $preco;
 
-                    // Inserir na tabela servico_material
+                    // Inserir na tabela `servico_material`
                     $stmt_material->bind_param("iiidd", $id_servico, $id_material, $quantidade, $preco, $subtotal);
                     $stmt_material->execute();
 
@@ -100,6 +110,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 ?>
 
 <?php 
+// Define a página atual e inclui o cabeçalho
 $currentPage = 'adicionar_servico';
 require_once "includes/templates/header.php";
 ?>
@@ -107,26 +118,32 @@ require_once "includes/templates/header.php";
 <div class="container mt-5 mb-5">
     <h2 class="mb-4">Adicionar Serviço</h2>
     <form method="POST">
+        <!-- Campo para o nome do serviço -->
         <div class="mb-3">
             <label for="nome_servico" class="form-label">Nome do Serviço</label>
             <input type="text" class="form-control" id="nome_servico" name="nome_servico" required>
         </div>
+        <!-- Campo para a descrição do serviço -->
         <div class="mb-3">
             <label for="descricao_servico" class="form-label">Descrição</label>
             <textarea class="form-control" id="descricao_servico" name="descricao_servico" required></textarea>
         </div>
+        <!-- Campo para a data de início do serviço -->
         <div class="mb-3">
             <label for="data_inicio" class="form-label">Data Início</label>
             <input type="date" class="form-control" id="data_inicio" name="data_inicio" required>
         </div>
+        <!-- Campo para a data de término do serviço -->
         <div class="mb-3">
             <label for="data_fim" class="form-label">Data Fim</label>
             <input type="date" class="form-control" id="data_fim" name="data_fim" required>
         </div>
+        <!-- Campo para o valor da mão de obra -->
         <div class="mb-3">
             <label for="valor_mao_obra" class="form-label">Valor da Mão de Obra</label>
             <input type="number" class="form-control" id="valor_mao_obra" name="valor_mao_obra" step="0.01" required>
         </div>
+        <!-- Contêiner para adicionar materiais -->
         <div id="materiais-container">
             <div class="row align-items-end material-item">
                 <div class="col-md-4 mb-3">
@@ -134,6 +151,7 @@ require_once "includes/templates/header.php";
                     <select class="form-select material-select" name="materiais[]">
                         <option value="">Selecione um material</option>
                         <?php
+                            // Recupera a lista de materiais do banco de dados
                             $query_materiais = "SELECT id_material, nome, preco FROM material";
                             $res_materiais = $banco->query($query_materiais);
 
@@ -160,13 +178,16 @@ require_once "includes/templates/header.php";
                 </div>
             </div>
         </div>
+        <!-- Botão para adicionar mais materiais -->
         <div class="mb-3">
             <button type="button" class="btn btn-responsive btn-success" id="btn-add-material">Adicionar Material</button>
         </div>
+        <!-- Campo para o total do serviço -->
         <div class="mb-5">
             <label for="total" class="form-label">Total</label>
             <input type="number" class="form-control" id="total" name="total" step="0.01" readonly required>
         </div>
+        <!-- Botão para submeter o formulário -->
         <div class="row mb-3">
             <div class="col-md-12 text-center">
                 <button type="submit" class="btn btn-responsive btn-primary">Salvar Serviço</button>
@@ -175,7 +196,7 @@ require_once "includes/templates/header.php";
     </form>
 </div>
 
-<!-- Modal -->
+<!-- Modal para exibir mensagens de status -->
 <div class="modal fade" id="statusModal" tabindex="-1" aria-labelledby="statusModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -200,6 +221,7 @@ require_once "includes/templates/header.php";
             statusModal.show();
         <?php endif; ?>
 
+        // Adiciona novo material ao contêiner
         document.getElementById('btn-add-material').addEventListener('click', function() {
             var container = document.getElementById('materiais-container');
             var template = document.getElementById('material-template').cloneNode(true);
@@ -208,6 +230,7 @@ require_once "includes/templates/header.php";
             container.appendChild(template);
         });
 
+        // Remove material do contêiner
         document.addEventListener('click', function(e) {
             if (e.target && e.target.classList.contains('btn-remove-material')) {
                 e.target.closest('.material-item').remove();
@@ -215,6 +238,7 @@ require_once "includes/templates/header.php";
             }
         });
 
+        // Atualiza preço e subtotal quando um material é selecionado
         document.addEventListener('change', function(e) {
             if (e.target && e.target.classList.contains('material-select')) {
                 var selectedOption = e.target.options[e.target.selectedIndex];
@@ -226,6 +250,7 @@ require_once "includes/templates/header.php";
             }
         });
 
+        // Atualiza subtotal e total quando a quantidade ou valor da mão de obra muda
         document.addEventListener('input', function(e) {
             if (e.target && e.target.classList.contains('quantidade-input') || e.target && e.target.id === 'valor_mao_obra') {
                 var quantidade = e.target.value;
@@ -238,6 +263,7 @@ require_once "includes/templates/header.php";
             }
         });
 
+        // Função para atualizar o total do serviço
         function updateTotal() {
             var total = 0;
             document.querySelectorAll('.subtotal-input').forEach(function(subtotalInput) {
@@ -250,13 +276,14 @@ require_once "includes/templates/header.php";
     });
 </script>
 
-<!-- Template Oculto -->
+<!-- Template Oculto para adicionar novos materiais -->
 <div id="material-template" class="row material-item" style="display: none;">
     <div class="col-md-4 mb-3">
         <label for="materiais" class="form-label">Material</label>
         <select class="form-select material-select" name="materiais[]">
             <option value="">Selecione um material</option>
             <?php
+                // Recupera a lista de materiais do banco de dados
                 $query_materiais = "SELECT id_material, nome, preco FROM material";
                 $res_materiais = $banco->query($query_materiais);
 

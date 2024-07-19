@@ -1,14 +1,21 @@
 <?php
+// Inicia a sessão se ainda não tiver sido iniciada
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
+
+// Verifica se a sessão está vazia, redireciona para index.php se estiver
 if (empty($_SESSION)) {
     header("Location: index.php");
     exit();
 }
+
+// Inclui o arquivo de configuração do banco de dados
 include_once "includes/config/banco.php";
 
+// Verifica se a solicitação é do tipo POST
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Recebe os dados do formulário
     $id_servico = $_POST["id_servico"];
     $nome_servico = $_POST["nome_servico"];
     $descricao_servico = $_POST["descricao_servico"];
@@ -21,6 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $precos = isset($_POST["precos"]) ? $_POST["precos"] : [];
     $user = $_SESSION["usuario"];
 
+    // Inicia uma transação
     $banco->begin_transaction();
     try {
         // Restaurar os materiais antigos ao estoque
@@ -30,6 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt_get_old_materials->execute();
         $res_old_materials = $stmt_get_old_materials->get_result();
 
+        // Atualiza o estoque para adicionar as quantidades antigas
         while ($old_material = $res_old_materials->fetch_assoc()) {
             $query_restore_estoque = "UPDATE material SET quantidade = quantidade + ? WHERE id_material = ?";
             $stmt_restore_estoque = $banco->prepare($query_restore_estoque);
@@ -50,6 +59,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt_verifica_estoque->fetch();
             $stmt_verifica_estoque->close();
 
+            // Verifica se a quantidade desejada é maior que a quantidade em estoque
             if ($quantidade > $quantidade_estoque) {
                 $estoqueSuficiente = false;
                 break;
@@ -57,13 +67,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         if ($estoqueSuficiente) {
-            // Atualizar o serviço
+            // Atualizar os dados do serviço
             $query_servico = "UPDATE servico SET nome = ?, descricao = ?, data_inicio = ?, data_fim = ?, total = ? WHERE id_servico = ?";
             $stmt = $banco->prepare($query_servico);
             $stmt->bind_param("ssssdi", $nome_servico, $descricao_servico, $data_inicio, $data_fim, $total, $id_servico);
             $stmt->execute();
 
-            // Deletar os materiais antigos
+            // Deletar os materiais antigos associados ao serviço
             $query_delete_material = "DELETE FROM servico_material WHERE id_servico = ?";
             $stmt_delete_material = $banco->prepare($query_delete_material);
             $stmt_delete_material->bind_param("i", $id_servico);
@@ -109,6 +119,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['statusType'] = "danger";
     }
 
+    // Redireciona para a página de alteração do serviço após a tentativa de atualização
     header("Location: alterar_servico.php?id_servico=" . $id_servico);
     exit();
 }

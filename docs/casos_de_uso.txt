@@ -1,0 +1,37 @@
+Casos de Uso:
+1º Mecânico:
+* Fazer login/logout
+* Visualizar os serviços (servicos.php) relacionados ao seu usuário, onde pode filtrar e ordenar pelas colunas da tabela. 
+* Adicionar os serviços (adicionar_servicos.php), onde vai poder adicionar um serviço e os materiais associados a ele. 
+OBS: Ao adicionar os materiais relacionados ao serviço, estes são subtraídos da tabela de materiais. 
+* Alterar um serviço (alterar_servico.php), onde vai alterar um serviço em específico.
+* Alterar nome e senha (alterar_usuario.php)
+Detalhes:
+-> Ao realizar um serviço atrelado a um material, este é subtraido do estoque. 
+-> Ao editar um servico atrelado a um material, o estoque deverá ser corrigido. 
+
+2º Almoxarifado:
+* Fazer login/logout
+* Visualizar os materiais (materiais.php), onde pode filtrar e ordenar pelas colunas da tabela. 
+* Adicionar materiais (adicionar_material.php), onde vai poder adicionar um material. 
+* Alterar nome e senha (alterar_usuario.php)
+
+3º Vendedor: 
+* Fazer login/logout
+* Visualizar as vendas (vendas.php) relacionadas ao seu usuário, onde pode filtrar e ordenar pelas colunas da tabela. 
+* Realizar venda (adcionar_venda.php), onde vai poder adicionar uma nova venda a tabela. 
+* Editar uma venda e os materiais associados a mesma (alterar_venda.php).
+* Alterar nome e senha (alterar_usuario.php)
+Detalhes:
+-> Após uma venda, deve-se retirar os materiais associados ao estoque
+-> Antes de uma venda deve-se verificar se há materiais em estoque. 
+-> Ao editar uma venda o estoque deverá ser corrigido. 
+-> Se uma venda não estiver associada a nenhuma material ela é excluída. 
+
+4º Admin:
+* Fazer login/logout
+* Cadastrar um novo usuário (cadastrar_usuário.php)
+* Alterar nome e senha (alterar_usuario.php)
+* Visualizar relatório (dashboard.php)
+* Visualizar vendas de todos os usuários (vendas.php)
+* Visualizar serviços de todos os usuário (serviços.php)

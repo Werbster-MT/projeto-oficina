@@ -1,5 +1,6 @@
 <?php
 function renderMenu($tipo, $currentPage) {
+    // Renderiza os links da nav header menu de acordo com o usuário logado
     $menu = '';
 
     switch ($tipo) {
