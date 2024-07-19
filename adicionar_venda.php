@@ -171,7 +171,6 @@ require_once "includes/templates/header.php";
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         <?php if (!empty($statusMessage)): ?>

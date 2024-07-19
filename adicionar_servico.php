@@ -17,50 +17,76 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $descricao_servico = $_POST["descricao_servico"];
     $data_inicio = $_POST["data_inicio"];
     $data_fim = $_POST["data_fim"];
+    $valor_mao_obra = $_POST["valor_mao_obra"];
     $total = $_POST["total"];
-    $materiais = $_POST["materiais"] ?? [];
-    $quantidades = $_POST["quantidades"] ?? [];
-    $precos = $_POST["precos"] ?? [];
+    $materiais = isset($_POST["materiais"]) ? $_POST["materiais"] : [];
+    $quantidades = isset($_POST["quantidades"]) ? $_POST["quantidades"] : [];
+    $precos = isset($_POST["precos"]) ? $_POST["precos"] : [];
     $user = $_SESSION["usuario"];
 
-    // Inicia uma transação
     $banco->begin_transaction();
     try {
-        // Inserir o serviço
-        $query_servico = "INSERT INTO servico (nome, descricao, data_inicio, data_fim, total, usuario) VALUES (?, ?, ?, ?, ?, ?)";
-        $stmt = $banco->prepare($query_servico);
-        $stmt->bind_param("ssssds", $nome_servico, $descricao_servico, $data_inicio, $data_fim, $total, $user);
-        $stmt->execute();
+        $estoqueSuficiente = true;
 
-        $id_servico = $banco->insert_id;
+        // Verificar se há quantidade suficiente de cada material no estoque
+        foreach ($materiais as $index => $id_material) {
+            $quantidade = $quantidades[$index];
+            $query_verifica_estoque = "SELECT quantidade FROM material WHERE id_material = ?";
+            $stmt_verifica_estoque = $banco->prepare($query_verifica_estoque);
+            $stmt_verifica_estoque->bind_param("i", $id_material);
+            $stmt_verifica_estoque->execute();
+            $stmt_verifica_estoque->bind_result($quantidade_estoque);
+            $stmt_verifica_estoque->fetch();
+            $stmt_verifica_estoque->close();
 
-        if (!empty($materiais)) {
-            // Inserir os materiais associados ao serviço e atualizar o estoque
-            $query_material = "INSERT INTO servico_material (id_servico, id_material, quantidade, preco_unitario, subtotal) VALUES (?, ?, ?, ?, ?)";
-            $stmt_material = $banco->prepare($query_material);
-
-            $query_update_estoque = "UPDATE material SET quantidade = quantidade - ? WHERE id_material = ?";
-            $stmt_update_estoque = $banco->prepare($query_update_estoque);
-
-            foreach ($materiais as $index => $id_material) {
-                $quantidade = $quantidades[$index];
-                $preco = $precos[$index];
-                $subtotal = $quantidade * $preco;
-
-                // Inserir na tabela servico_material
-                $stmt_material->bind_param("iiidd", $id_servico, $id_material, $quantidade, $preco, $subtotal);
-                $stmt_material->execute();
-
-                // Atualizar o estoque
-                $stmt_update_estoque->bind_param("ii", $quantidade, $id_material);
-                $stmt_update_estoque->execute();
+            if ($quantidade > $quantidade_estoque) {
+                $estoqueSuficiente = false;
+                break;
             }
         }
 
-        // Commit da transação
-        $banco->commit();
-        $_SESSION['statusMessage'] = "Serviço adicionado com sucesso!";
-        $_SESSION['statusType'] = "success";
+        if ($estoqueSuficiente) {
+            // Inserir o serviço
+            $query_servico = "INSERT INTO servico (nome, descricao, data_inicio, data_fim, total, usuario) VALUES (?, ?, ?, ?, ?, ?)";
+            $stmt = $banco->prepare($query_servico);
+            $stmt->bind_param("ssssds", $nome_servico, $descricao_servico, $data_inicio, $data_fim, $total, $user);
+            $stmt->execute();
+
+            $id_servico = $banco->insert_id;
+
+            if (!empty($materiais)) {
+                // Inserir os materiais associados ao serviço e atualizar o estoque
+                $query_material = "INSERT INTO servico_material (id_servico, id_material, quantidade, preco_unitario, subtotal) VALUES (?, ?, ?, ?, ?)";
+                $stmt_material = $banco->prepare($query_material);
+
+                $query_update_estoque = "UPDATE material SET quantidade = quantidade - ? WHERE id_material = ?";
+                $stmt_update_estoque = $banco->prepare($query_update_estoque);
+
+                foreach ($materiais as $index => $id_material) {
+                    $quantidade = $quantidades[$index];
+                    $preco = $precos[$index];
+                    $subtotal = $quantidade * $preco;
+
+                    // Inserir na tabela servico_material
+                    $stmt_material->bind_param("iiidd", $id_servico, $id_material, $quantidade, $preco, $subtotal);
+                    $stmt_material->execute();
+
+                    // Atualizar o estoque
+                    $stmt_update_estoque->bind_param("ii", $quantidade, $id_material);
+                    $stmt_update_estoque->execute();
+                }
+            }
+
+            // Commit da transação
+            $banco->commit();
+            $_SESSION['statusMessage'] = "Serviço adicionado com sucesso!";
+            $_SESSION['statusType'] = "success";
+        } else {
+            // Rollback da transação em caso de estoque insuficiente
+            $banco->rollback();
+            $_SESSION['statusMessage'] = "Erro: Quantidade insuficiente em estoque para um ou mais materiais.";
+            $_SESSION['statusType'] = "danger";
+        }
     } catch (Exception $e) {
         // Rollback da transação em caso de erro
         $banco->rollback();
@@ -98,14 +124,48 @@ require_once "includes/templates/header.php";
             <input type="date" class="form-control" id="data_fim" name="data_fim" required>
         </div>
         <div class="mb-3">
-            <label for="total" class="form-label">Total</label>
-            <input type="number" class="form-control" id="total" name="total" step="0.01" required>
+            <label for="valor_mao_obra" class="form-label">Valor da Mão de Obra</label>
+            <input type="number" class="form-control" id="valor_mao_obra" name="valor_mao_obra" step="0.01" required>
         </div>
         <div id="materiais-container">
-            <!-- Seção de materiais será adicionada dinamicamente -->
+            <div class="row mb-3 material-item">
+                <div class="col-md-4">
+                    <label for="materiais" class="form-label">Material</label>
+                    <select class="form-select material-select" name="materiais[]">
+                        <option value="">Selecione um material</option>
+                        <?php
+                            $query_materiais = "SELECT id_material, nome, preco FROM material";
+                            $res_materiais = $banco->query($query_materiais);
+
+                            while ($material = $res_materiais->fetch_assoc()) {
+                                echo "<option value='{$material['id_material']}' data-preco='{$material['preco']}'>{$material['nome']}</option>";
+                            }
+                        ?>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="quantidades" class="form-label">Quantidade</label>
+                    <input type="number" class="form-control quantidade-input" name="quantidades[]" step="1">
+                </div>
+                <div class="col-md-2">
+                    <label for="precos" class="form-label">Preço Unitário</label>
+                    <input type="number" class="form-control preco-input" name="precos[]" step="0.01" readonly>
+                </div>
+                <div class="col-md-2">
+                    <label for="subtotais" class="form-label">Subtotal</label>
+                    <input type="number" class="form-control subtotal-input" step="0.01" readonly>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="button" class="btn btn-danger btn-remove-material">Remover</button>
+                </div>
+            </div>
         </div>
         <div class="mb-3">
             <button type="button" class="btn btn-secondary" id="btn-add-material">Adicionar Material</button>
+        </div>
+        <div class="mb-3">
+            <label for="total" class="form-label">Total</label>
+            <input type="number" class="form-control" id="total" name="total" step="0.01" readonly required>
         </div>
         <div class="row mb-3">
             <div class="col-md-12 text-center">
@@ -139,19 +199,53 @@ require_once "includes/templates/header.php";
             var statusModal = new bootstrap.Modal(document.getElementById('statusModal'));
             statusModal.show();
         <?php endif; ?>
-    });
 
-    document.getElementById('btn-add-material').addEventListener('click', function() {
-        var container = document.getElementById('materiais-container');
-        var template = document.getElementById('material-template').cloneNode(true);
-        template.style.display = 'flex';
-        template.removeAttribute('id');
-        container.appendChild(template);
-    });
+        document.getElementById('btn-add-material').addEventListener('click', function() {
+            var container = document.getElementById('materiais-container');
+            var template = document.getElementById('material-template').cloneNode(true);
+            template.style.display = 'flex';
+            template.removeAttribute('id');
+            container.appendChild(template);
+        });
 
-    document.addEventListener('click', function(e) {
-        if (e.target && e.target.classList.contains('btn-remove-material')) {
-            e.target.closest('.material-item').remove();
+        document.addEventListener('click', function(e) {
+            if (e.target && e.target.classList.contains('btn-remove-material')) {
+                e.target.closest('.material-item').remove();
+                updateTotal();
+            }
+        });
+
+        document.addEventListener('change', function(e) {
+            if (e.target && e.target.classList.contains('material-select')) {
+                var selectedOption = e.target.options[e.target.selectedIndex];
+                var preco = selectedOption.getAttribute('data-preco');
+                var quantidadeInput = e.target.closest('.material-item').querySelector('.quantidade-input');
+                var precoInput = e.target.closest('.material-item').querySelector('.preco-input');
+                precoInput.value = preco;
+                quantidadeInput.dispatchEvent(new Event('input'));
+            }
+        });
+
+        document.addEventListener('input', function(e) {
+            if (e.target && e.target.classList.contains('quantidade-input') || e.target && e.target.id === 'valor_mao_obra') {
+                var quantidade = e.target.value;
+                var precoInput = e.target.closest('.material-item').querySelector('.preco-input');
+                var subtotalInput = e.target.closest('.material-item').querySelector('.subtotal-input');
+                var preco = precoInput.value;
+                var subtotal = quantidade * preco;
+                subtotalInput.value = subtotal.toFixed(2);
+                updateTotal();
+            }
+        });
+
+        function updateTotal() {
+            var total = 0;
+            document.querySelectorAll('.subtotal-input').forEach(function(subtotalInput) {
+                total += parseFloat(subtotalInput.value) || 0;
+            });
+            var valor_mao_obra = parseFloat(document.getElementById('valor_mao_obra').value) || 0;
+            total += valor_mao_obra;
+            document.getElementById('total').value = total.toFixed(2);
         }
     });
 </script>
@@ -160,25 +254,29 @@ require_once "includes/templates/header.php";
 <div id="material-template" class="row mb-3 material-item" style="display: none;">
     <div class="col-md-4">
         <label for="materiais" class="form-label">Material</label>
-        <select class="form-select" name="materiais[]">
+        <select class="form-select material-select" name="materiais[]">
             <option value="">Selecione um material</option>
             <?php
-                $query_materiais = "SELECT id_material, nome FROM material";
+                $query_materiais = "SELECT id_material, nome, preco FROM material";
                 $res_materiais = $banco->query($query_materiais);
 
                 while ($material = $res_materiais->fetch_assoc()) {
-                    echo "<option value='{$material['id_material']}'>{$material['nome']}</option>";
+                    echo "<option value='{$material['id_material']}' data-preco='{$material['preco']}'>{$material['nome']}</option>";
                 }
             ?>
         </select>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-2">
         <label for="quantidades" class="form-label">Quantidade</label>
-        <input type="number" class="form-control" name="quantidades[]" step="1">
+        <input type="number" class="form-control quantidade-input" name="quantidades[]" step="1">
     </div>
-    <div class="col-md-3">
+    <div class="col-md-2">
         <label for="precos" class="form-label">Preço Unitário</label>
-        <input type="number" class="form-control" name="precos[]" step="0.01">
+        <input type="number" class="form-control preco-input" name="precos[]" step="0.01" readonly>
+    </div>
+    <div class="col-md-2">
+        <label for="subtotais" class="form-label">Subtotal</label>
+        <input type="number" class="form-control subtotal-input" step="0.01" readonly>
     </div>
     <div class="col-md-2 d-flex align-items-end">
         <button type="button" class="btn btn-danger btn-remove-material">Remover</button>
