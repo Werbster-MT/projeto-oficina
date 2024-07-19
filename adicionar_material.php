@@ -13,9 +13,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $query = "INSERT INTO material (nome, descricao, quantidade, preco) VALUES (?, ?, ?, ?)";
     $stmt = $banco->prepare($query);
     $stmt->bind_param("ssii", $nome, $descricao, $quantidade, $preco);
-    $stmt->execute();
 
-    header("Location: materiais.php");
+    if ($stmt->execute()) {
+        $statusMessage = "Material adicionado com sucesso!";
+        $statusType = "success";
+    } else {
+        $statusMessage = "Erro ao adicionar material: " . $stmt->error;
+        $statusType = "danger";
+    }
 }
 ?>
 
@@ -50,5 +55,31 @@ require_once "includes/templates/header.php";
         </div>
     </form>
 </div>
+
+<!-- Modal -->
+<div class="modal fade" id="statusModal" tabindex="-1" aria-labelledby="statusModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="statusModalLabel">Status da Operação</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <?= $statusMessage ?>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-<?= $statusType ?>" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+    <?php if (!empty($statusMessage)): ?>
+    var statusModal = new bootstrap.Modal(document.getElementById('statusModal'));
+    statusModal.show();
+    <?php endif; ?>
+</script>
 
 <?php require_once "includes/templates/footer.php"; ?>

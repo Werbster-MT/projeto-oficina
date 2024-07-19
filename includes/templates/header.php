@@ -1,4 +1,3 @@
-<!-- Header -->
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -15,14 +14,11 @@
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Font Awesome -->
-    <script src="https://kit.fontawesome.com/0c23645969.js" crossorigin="anonymous"></script>
-    
-    <!-- Adicione seus links de estilos aqui -->
+    <!-- CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <header>
-    <nav class="navbar navbar-expand-lg bg-danger p-3">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark bg- p-3">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">Oficina Auto</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,7 +34,7 @@
                 </ul>
                 <div class="navbar-nav">
                     <span class="nav-item">
-                        <a href="" class="nav-link">Meus Dados</a>
+                        <a href="alterar_usuario.php" class="nav-link">Meus Dados</a>
                     </span>
                     <span class="nav-item">
                         <a class="nav-link" href="logout.php">Sair</a>

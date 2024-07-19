@@ -1,66 +1,74 @@
 <?php
-    if (session_status() == PHP_SESSION_NONE) {
-        session_start();
-    }
-    if(empty($_SESSION)) {
-        header("Location: index.php"); 
-    }
-    include_once "includes/config/banco.php";
+session_start();
+if (empty($_SESSION)) {
+    header("Location: index.php");
+    exit();
+}
+include_once "includes/config/banco.php";
 
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $data = $_POST["data"];
-        $total = $_POST["total"];
-        $materiais = $_POST["materiais"];
-        $quantidades = $_POST["quantidades"];
-        $precos = $_POST["precos"];
-        $user = $_SESSION["usuario"];
+$statusMessage = isset($_SESSION['statusMessage']) ? $_SESSION['statusMessage'] : '';
+$statusType = isset($_SESSION['statusType']) ? $_SESSION['statusType'] : '';
+unset($_SESSION['statusMessage'], $_SESSION['statusType']);
 
-        // Inicia uma transação
-        $banco->begin_transaction();
-        try {
-            // Inserir a venda
-            $query_venda = "INSERT INTO venda (data, total, usuario) VALUES (?, ?, ?)";
-            $stmt = $banco->prepare($query_venda);
-            $stmt->bind_param("sds", $data, $total, $user);
-            $stmt->execute();
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $data = $_POST["data"];
+    $total = $_POST["total"];
+    $materiais = $_POST["materiais"];
+    $quantidades = $_POST["quantidades"];
+    $precos = $_POST["precos"];
+    $user = $_SESSION["usuario"];
 
-            $id_venda = $banco->insert_id;
+    // Inicia uma transação
+    $banco->begin_transaction();
+    try {
+        // Inserir a venda
+        $query_venda = "INSERT INTO venda (data, total, usuario) VALUES (?, ?, ?)";
+        $stmt = $banco->prepare($query_venda);
+        $stmt->bind_param("sds", $data, $total, $user);
+        $stmt->execute();
 
-            // Inserir os materiais associados à venda e atualizar o estoque
-            $query_material = "INSERT INTO venda_material (id_venda, id_material, quantidade, preco_unitario, subtotal) VALUES (?, ?, ?, ?, ?)";
-            $stmt_material = $banco->prepare($query_material);
+        $id_venda = $banco->insert_id;
 
-            $query_update_estoque = "UPDATE material SET quantidade = quantidade - ? WHERE id_material = ?";
-            $stmt_update_estoque = $banco->prepare($query_update_estoque);
+        // Inserir os materiais associados à venda e atualizar o estoque
+        $query_material = "INSERT INTO venda_material (id_venda, id_material, quantidade, preco_unitario, subtotal) VALUES (?, ?, ?, ?, ?)";
+        $stmt_material = $banco->prepare($query_material);
 
-            foreach ($materiais as $index => $id_material) {
-                $quantidade = $quantidades[$index];
-                $preco = $precos[$index];
-                $subtotal = $quantidade * $preco;
+        $query_update_estoque = "UPDATE material SET quantidade = quantidade - ? WHERE id_material = ?";
+        $stmt_update_estoque = $banco->prepare($query_update_estoque);
 
-                // Inserir na tabela venda_material
-                $stmt_material->bind_param("iiidd", $id_venda, $id_material, $quantidade, $preco, $subtotal);
-                $stmt_material->execute();
+        foreach ($materiais as $index => $id_material) {
+            $quantidade = $quantidades[$index];
+            $preco = $precos[$index];
+            $subtotal = $quantidade * $preco;
 
-                // Atualizar o estoque
-                $stmt_update_estoque->bind_param("ii", $quantidade, $id_material);
-                $stmt_update_estoque->execute();
-            }
+            // Inserir na tabela venda_material
+            $stmt_material->bind_param("iiidd", $id_venda, $id_material, $quantidade, $preco, $subtotal);
+            $stmt_material->execute();
 
-            // Commit da transação
-            $banco->commit();
-            header("Location: vendas.php");
-        } catch (Exception $e) {
-            // Rollback da transação em caso de erro
-            $banco->rollback();
-            echo "Erro: " . $e->getMessage();
+            // Atualizar o estoque
+            $stmt_update_estoque->bind_param("ii", $quantidade, $id_material);
+            $stmt_update_estoque->execute();
         }
+
+        // Commit da transação
+        $banco->commit();
+        $_SESSION['statusMessage'] = "Venda adicionada com sucesso!";
+        $_SESSION['statusType'] = "success";
+    } catch (Exception $e) {
+        // Rollback da transação em caso de erro
+        $banco->rollback();
+        $_SESSION['statusMessage'] = "Erro ao adicionar venda: " . $e->getMessage();
+        $_SESSION['statusType'] = "danger";
     }
+
+    header("Location: adicionar_venda.php");
+    exit();
+}
 ?>
 
 <?php 
 $currentPage = 'adicionar_venda';
-require_once "includes/templates/header.php"
+require_once "includes/templates/header.php";
 ?>
 
 <div class="container mt-5 mb-5">
@@ -114,6 +122,47 @@ require_once "includes/templates/header.php"
     </form>
 </div>
 
+<!-- Modal -->
+<div class="modal fade" id="statusModal" tabindex="-1" aria-labelledby="statusModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="statusModalLabel">Status da Operação</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <?= $statusMessage ?>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-<?= $statusType ?>" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        <?php if (!empty($statusMessage)): ?>
+            var statusModal = new bootstrap.Modal(document.getElementById('statusModal'));
+            statusModal.show();
+        <?php endif; ?>
+    });
+
+    document.getElementById('btn-add-material').addEventListener('click', function() {
+        var container = document.getElementById('materiais-container');
+        var template = document.getElementById('material-template').cloneNode(true);
+        template.style.display = 'flex';
+        template.removeAttribute('id');
+        container.appendChild(template);
+    });
+
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.classList.contains('btn-remove-material')) {
+            e.target.closest('.material-item').remove();
+        }
+    });
+</script>
+
 <!-- Template Oculto -->
 <div id="material-template" class="row mb-3 material-item" style="display: none;">
     <div class="col-md-4">
@@ -142,21 +191,5 @@ require_once "includes/templates/header.php"
         <button type="button" class="btn btn-danger btn-remove-material">Remover</button>
     </div>
 </div>
-<script>
-    document.getElementById('btn-add-material').addEventListener('click', function() {
-        var container = document.getElementById('materiais-container');
-        var template = document.getElementById('material-template').cloneNode(true);
-        template.style.display = 'flex';
-        template.removeAttribute('id');
-        container.appendChild(template);
-    });
 
-    document.addEventListener('click', function(e) {
-        if (e.target && e.target.classList.contains('btn-remove-material')) {
-            e.target.closest('.material-item').remove();
-        }
-    });
-</script>
-
-<!-- Footer -->
-<?php include_once "includes/templates/footer.php"?>
+<?php include_once "includes/templates/footer.php"; ?>

@@ -1,5 +1,6 @@
 @charset "UTF-8";
 
+/* Login */
 .card-custom {
     height: 300px;
     width: 100%; 
@@ -17,10 +18,7 @@
     height: 100%;
 }
 
-#service-icon {
-    font-size: 60px;
-}
-
-main .container {
-    min-height: 100vh;
-}
+/* Menu */
+nav.navbar > div#navbarNav > span.nav-item > a.nav-link {
+    color: #FFF;
+} 

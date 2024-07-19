@@ -10,43 +10,75 @@ if(empty($_SESSION)) {
 }
 
 $currentPage = "vendas";
-$user = $_SESSION["usuario"];
+$usuario = $_SESSION["usuario"];
+$tipo = $_SESSION["tipo"];
 
 // Consulta para obter vendas e detalhes dos materiais vendidos
-$query_vendas = "SELECT 
-                    v.id_venda, 
-                    v.data, 
-                    v.total,
-                    vm.quantidade,
-                    vm.preco_unitario,
-                    vm.subtotal,
-                    m.nome AS nome_material,
-                    u.nome AS nome_usuario
-                FROM 
-                    venda v 
-                INNER JOIN
-                    venda_material vm ON v.id_venda = vm.id_venda
-                INNER JOIN
-                    material m ON vm.id_material = m.id_material
-                JOIN 
-                    usuario u ON v.usuario = u.usuario
-                WHERE 
-                    u.usuario = ?";
+if ($tipo == 'admin') {
+    // Administrador: visualizar todas as vendas
+    $query_vendas = "SELECT 
+                        v.id_venda, 
+                        v.data, 
+                        v.total,
+                        vm.quantidade,
+                        vm.preco_unitario,
+                        vm.subtotal,
+                        m.nome AS nome_material,
+                        u.nome AS nome_usuario
+                    FROM 
+                        venda v 
+                    INNER JOIN
+                        venda_material vm ON v.id_venda = vm.id_venda
+                    INNER JOIN
+                        material m ON vm.id_material = m.id_material
+                    JOIN 
+                        usuario u ON v.usuario = u.usuario";
+} else {
+    // Usuário comum: visualizar apenas as suas vendas
+    $query_vendas = "SELECT 
+                        v.id_venda, 
+                        v.data, 
+                        v.total,
+                        vm.quantidade,
+                        vm.preco_unitario,
+                        vm.subtotal,
+                        m.nome AS nome_material,
+                        u.nome AS nome_usuario
+                    FROM 
+                        venda v 
+                    INNER JOIN
+                        venda_material vm ON v.id_venda = vm.id_venda
+                    INNER JOIN
+                        material m ON vm.id_material = m.id_material
+                    JOIN 
+                        usuario u ON v.usuario = u.usuario
+                    WHERE 
+                        u.usuario = ?";
+}
 
 $stmt = $banco->prepare($query_vendas);
-$stmt->bind_param('s', $user);
+
+if ($tipo != 'admin') {
+    $stmt->bind_param('s', $usuario);
+}
+
 $stmt->execute();
 $res = $stmt->get_result();
+
+if ($stmt->error) {
+    echo "Erro na consulta: " . $stmt->error;
+}
 
 require_once "includes/templates/header.php";
 ?>
 <div class="container mt-5 mb-5">
-    <h2>Vendas</h2>
+    <h2 class="mb-4">Vendas</h2>
     <table id="vendasTable" class="table table-striped table-bordered">
         <thead>
             <tr>
                 <th>ID Venda</th>
                 <th>Data</th>
+                <th>Usuário</th>
                 <th>Material</th>
                 <th>Quantidade</th>
                 <th>Preço Unitário</th>
@@ -60,6 +92,7 @@ require_once "includes/templates/header.php";
                 <tr>
                     <td><?= $row->id_venda ?></td>
                     <td><?= $row->data ?></td>
+                    <td><?= $row->nome_usuario ?></td>
                     <td><?= $row->nome_material ?></td>
                     <td><?= $row->quantidade ?></td>
                     <td>R$<?= number_format($row->preco_unitario, 2, ',', '.') ?></td>
@@ -76,7 +109,11 @@ require_once "includes/templates/header.php";
 
 <script>
     $(document).ready(function() {
-        $('#vendasTable').DataTable();
+        $('#vendasTable').DataTable({
+            "language": {
+                "url": "assets/js/pt-BR.json"
+            }
+        });
     });
 </script>
 

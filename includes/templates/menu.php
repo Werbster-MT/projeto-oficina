@@ -37,6 +37,9 @@ function renderMenu($tipo, $currentPage) {
         case "admin":
             $menu = "
                 <li class='nav-item'>
+                    <a class='nav-link " . ($currentPage == 'dashboard' ? 'active' : '') . "' href='dashboard.php'>Dashboard</a>
+                </li>
+                <li class='nav-item'>
                     <a class='nav-link " . ($currentPage == 'vendas' ? 'active' : '') . "' href='vendas.php'>Vendas</a>
                 </li>
                 <li class='nav-item'>
