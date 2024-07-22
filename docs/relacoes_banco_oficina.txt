@@ -1,0 +1,19 @@
+Relações entre as tabelas:
+Usuario:
+Relaciona-se com Venda (um usuário pode fazer várias vendas).
+Relaciona-se com Servico (um usuário pode realizar vários serviços).
+
+Material:
+Relaciona-se com Venda_Material (um material pode ser vendido em várias vendas).
+Relaciona-se com Servico_Material (um material pode ser usado em vários serviços).
+
+Venda:
+Relaciona-se com Usuario através de usuario (quem fez a venda).
+Relaciona-se com Venda_Material (uma venda pode incluir vários materiais).
+
+Servico:
+Relaciona-se com Usuario através de usuario (quem realizou o serviço).
+Relaciona-se com Servico_Material (um serviço pode incluir vários materiais).
+
+Venda_Material e Servico_Material:
+Servem como tabelas de junção para representar relações muitos-para-muitos entre Venda e Material, e entre Servico e Material, respectivamente.
