@@ -1,15 +1,22 @@
-* Cadastrar User - add try catch
-* Alterar User - add try catch
-* Adicionar serviço:
- - Erro ao adicionar um servico e somar o total automaticamente ao total sem remover o material.
- - Adicionar serviço - validação de valores negativos. 
-* Alterar serviço:
- - validação de valores negativos. 
- - Quando um serviço é atrelado como 0, este não some. Ainda fica registrado na tabela, mesmo que não tenha materiais associados.
+* Cadastrar User (add try catch)
 
-* Adcionar venda:
-- Uma venda está sendo realizada sem ser atrelada a um material. 
+* Alterar User (add try catch)
 
-* Alterar venda:
-- Quando uma venda é editada para 0, está some da tabela de vendas e os seus materiais associados não são devolvidos ao estoque. 
+* Adicionar Serviço:
+ - Erro ao adicionar um servico e somar o total automaticamente ao total sem remover o material. (corrigido)
+ - Validação de valores negativos. (adicionado)
 
+* Alterar Serviço:
+ - validação de valores negativos. (adicionado)
+ - Quando o valor de um serviço é atrelado como 0, este não some. Ainda fica registrado na tabela, mesmo que não tenha materiais associados. (corrigido)
+
+* Adicionar Venda:
+- Uma venda está sendo realizada sem ser atrelada a um material. (corrigido)
+
+* Alterar Venda:
+- Quando uma venda é editada para 0, está some da tabela de vendas e os seus materiais associados não são devolvidos ao estoque. (corrigido)
+
+* Alterar Material: 
+- Material consegue ser editado para valores negativos. (corrigido)
+
+* Nova lógica atribuída, quando uma venda/serviço é deletado, um modal com o status da operação será direcionado para página de exibição (vendas/serviços). 
