@@ -22,6 +22,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $quantidade = $_POST['quantidade'];
     $preco = $_POST['preco'];
 
+    $quantidade = $quantidade >= 0 ? $quantidade : 0; 
+
     // Prepara a query de atualização dos dados do material
     $query_update = "UPDATE material 
                      SET nome = ?, descricao = ?, quantidade = ?, preco = ? 

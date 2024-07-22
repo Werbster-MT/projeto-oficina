@@ -47,11 +47,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->bind_param("sss", $nome, $senha, $id_usuario);
 
     // Executa a query e define a mensagem de status com base no resultado
-    if ($stmt->execute()) {
-        $statusMessage = "Dados do usuário atualizados com sucesso!";
+    try {
+      $stmt->execute(); 
+      $statusMessage = "Dados do usuário atualizados com sucesso!";
         $statusType = "success";
-    } else {
-        $statusMessage = "Erro ao atualizar os dados do usuário: " . $stmt->error;
+    } catch(Exception $e) {
+      $statusMessage = "Erro ao atualizar os dados do usuário: " . $stmt->error;
         $statusType = "danger";
     }
 }

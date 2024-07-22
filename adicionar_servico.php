@@ -39,6 +39,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Verificar se há quantidade suficiente de cada material no estoque
         foreach ($materiais as $index => $id_material) {
+            if (empty($id_material) || empty($quantidades[$index])) { 
+                continue;
+            }
             $quantidade = $quantidades[$index];
             $query_verifica_estoque = "SELECT quantidade FROM material WHERE id_material = ?";
             $stmt_verifica_estoque = $banco->prepare($query_verifica_estoque);
@@ -73,6 +76,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $stmt_update_estoque = $banco->prepare($query_update_estoque);
 
                 foreach ($materiais as $index => $id_material) {
+                    if (empty($id_material) || empty($quantidades[$index]) || empty($precos[$index])) {
+                        continue;
+                    }
                     $quantidade = $quantidades[$index];
                     $preco = $precos[$index];
                     $subtotal = $quantidade * $preco;
@@ -219,6 +225,7 @@ require_once "includes/templates/header.php";
         <?php if (!empty($statusMessage)): ?>
             var statusModal = new bootstrap.Modal(document.getElementById('statusModal'));
             statusModal.show();
+            <?php unset($_SESSION['statusMessage']); unset($_SESSION['statusType']); ?>
         <?php endif; ?>
 
         // Adiciona novo material ao contêiner
@@ -252,13 +259,15 @@ require_once "includes/templates/header.php";
 
         // Atualiza subtotal e total quando a quantidade ou valor da mão de obra muda
         document.addEventListener('input', function(e) {
-            if (e.target && e.target.classList.contains('quantidade-input') || e.target && e.target.id === 'valor_mao_obra') {
-                var quantidade = e.target.value;
-                var precoInput = e.target.closest('.material-item').querySelector('.preco-input');
-                var subtotalInput = e.target.closest('.material-item').querySelector('.subtotal-input');
-                var preco = precoInput.value;
+            if (e.target && (e.target.classList.contains('quantidade-input') || e.target.id === 'valor_mao_obra')) {
+                var quantidade = parseFloat(e.target.value);
+                var precoInput = e.target.closest('.material-item') ? e.target.closest('.material-item').querySelector('.preco-input') : null;
+                var subtotalInput = e.target.closest('.material-item') ? e.target.closest('.material-item').querySelector('.subtotal-input') : null;
+                var preco = precoInput ? parseFloat(precoInput.value) : 0;
                 var subtotal = quantidade * preco;
-                subtotalInput.value = subtotal.toFixed(2);
+                if (subtotalInput) {
+                    subtotalInput.value = subtotal.toFixed(2);
+                }
                 updateTotal();
             }
         });
@@ -270,9 +279,21 @@ require_once "includes/templates/header.php";
                 total += parseFloat(subtotalInput.value) || 0;
             });
             var valor_mao_obra = parseFloat(document.getElementById('valor_mao_obra').value) || 0;
-            total += valor_mao_obra;
+            if (valor_mao_obra < 0) {
+                total = 0;
+            } else {
+                total += valor_mao_obra;
+            }
             document.getElementById('total').value = total.toFixed(2);
         }
+
+        // Validação para impedir valor negativo na mão de obra
+        document.getElementById('valor_mao_obra').addEventListener('input', function(e) {
+            if (parseFloat(e.target.value) < 0) {
+                e.target.value = 0;
+            }
+            updateTotal();
+        });
     });
 </script>
 

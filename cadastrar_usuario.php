@@ -32,10 +32,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->bind_param("ssss", $usuario, $nome, $senha, $tipo);
 
     // Executa a query e define a mensagem de status com base no resultado
-    if ($stmt->execute()) {
+    try {
+        $stmt->execute();
         $statusMessage = "Usuário cadastrado com sucesso!";
         $statusType = "success";
-    } else {
+    } catch (Exception $e) {
         $statusMessage = "Erro ao cadastrar usuário: " . $stmt->error;
         $statusType = "danger";
     }

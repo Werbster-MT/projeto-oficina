@@ -46,9 +46,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt_restore_estoque->execute();
         }
 
-        $estoqueSuficiente = true;
-
         // Verificar se há quantidade suficiente de cada material no estoque
+        $estoqueSuficiente = true;
         foreach ($materiais as $index => $id_material) {
             $quantidade = $quantidades[$index];
             $query_verifica_estoque = "SELECT quantidade FROM material WHERE id_material = ?";
@@ -67,45 +66,64 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         if ($estoqueSuficiente) {
-            // Atualizar os dados do serviço
-            $query_servico = "UPDATE servico SET nome = ?, descricao = ?, data_inicio = ?, data_fim = ?, total = ? WHERE id_servico = ?";
-            $stmt = $banco->prepare($query_servico);
-            $stmt->bind_param("ssssdi", $nome_servico, $descricao_servico, $data_inicio, $data_fim, $total, $id_servico);
-            $stmt->execute();
-
             // Deletar os materiais antigos associados ao serviço
             $query_delete_material = "DELETE FROM servico_material WHERE id_servico = ?";
             $stmt_delete_material = $banco->prepare($query_delete_material);
             $stmt_delete_material->bind_param("i", $id_servico);
             $stmt_delete_material->execute();
 
-            if (!empty($materiais)) {
+            if ($total == 0) {
+                // Deletar o serviço se o total for zero
+                $query_deleta_servico = "DELETE FROM servico WHERE id_servico = ?";
+                $stmt_deleta_servico = $banco->prepare($query_deleta_servico);
+                $stmt_deleta_servico->bind_param("i", $id_servico);
+                $stmt_deleta_servico->execute();
+                // Commit da transação
+                $banco->commit();
+                $_SESSION['statusMessage'] = "Serviço deletado com sucesso!";
+                $_SESSION['statusType'] = "success";
+
+                // Remover apenas mensagens de status
+                unset($_SESSION['statusMessage']);
+                unset($_SESSION['statusType']);
+                
+                // Redireciona para a página de serviços com mensagem de sucesso
+                header("Location: servicos.php?status=success&message=Serviço deletado com sucesso!");
+                exit();
+            } else {
+                // Atualizar os dados do serviço
+                $query_servico = "UPDATE servico SET nome = ?, descricao = ?, data_inicio = ?, data_fim = ?, total = ? WHERE id_servico = ?";
+                $stmt = $banco->prepare($query_servico);
+                $stmt->bind_param("ssssdi", $nome_servico, $descricao_servico, $data_inicio, $data_fim, $total, $id_servico);
+                $stmt->execute();
+
                 // Inserir os novos materiais associados ao serviço e atualizar o estoque
-                $query_material = "INSERT INTO servico_material (id_servico, id_material, quantidade, preco_unitario, subtotal) VALUES (?, ?, ?, ?, ?)";
-                $stmt_material = $banco->prepare($query_material);
+                if (!empty($materiais)) {
+                    $query_material = "INSERT INTO servico_material (id_servico, id_material, quantidade, preco_unitario, subtotal) VALUES (?, ?, ?, ?, ?)";
+                    $stmt_material = $banco->prepare($query_material);
 
-                $query_update_estoque = "UPDATE material SET quantidade = quantidade - ? WHERE id_material = ?";
-                $stmt_update_estoque = $banco->prepare($query_update_estoque);
+                    $query_update_estoque = "UPDATE material SET quantidade = quantidade - ? WHERE id_material = ?";
+                    $stmt_update_estoque = $banco->prepare($query_update_estoque);
 
-                foreach ($materiais as $index => $id_material) {
-                    $quantidade = $quantidades[$index];
-                    $preco = $precos[$index];
-                    $subtotal = $quantidade * $preco;
+                    foreach ($materiais as $index => $id_material) {
+                        $quantidade = $quantidades[$index];
+                        $preco = $precos[$index];
+                        $subtotal = $quantidade * $preco;
 
-                    // Inserir na tabela servico_material
-                    $stmt_material->bind_param("iiidd", $id_servico, $id_material, $quantidade, $preco, $subtotal);
-                    $stmt_material->execute();
+                        // Inserir na tabela servico_material
+                        $stmt_material->bind_param("iiidd", $id_servico, $id_material, $quantidade, $preco, $subtotal);
+                        $stmt_material->execute();
 
-                    // Atualizar o estoque
-                    $stmt_update_estoque->bind_param("ii", $quantidade, $id_material);
-                    $stmt_update_estoque->execute();
+                        // Atualizar o estoque
+                        $stmt_update_estoque->bind_param("ii", $quantidade, $id_material);
+                        $stmt_update_estoque->execute();
+                    }
                 }
+                // Commit da transação
+                $banco->commit();
+                $_SESSION['statusMessage'] = "Serviço atualizado com sucesso!";
+                $_SESSION['statusType'] = "success";
             }
-
-            // Commit da transação
-            $banco->commit();
-            $_SESSION['statusMessage'] = "Serviço atualizado com sucesso!";
-            $_SESSION['statusType'] = "success";
         } else {
             // Rollback da transação em caso de estoque insuficiente
             $banco->rollback();

@@ -147,6 +147,7 @@ require_once "includes/templates/header.php";
         <?php if (!empty($statusMessage)): ?>
             var statusModal = new bootstrap.Modal(document.getElementById('statusModal'));
             statusModal.show();
+            <?php unset($_SESSION['statusMessage']); unset($_SESSION['statusType']); ?>
         <?php endif; ?>
 
         // Adiciona novo material ao contêiner

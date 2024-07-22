@@ -82,6 +82,10 @@ if ($stmt->error) {
 
 // Inclui o cabeçalho da página
 require_once "includes/templates/header.php";
+
+// Recupera mensagens de status da URL, se existirem
+$statusMessage = isset($_GET['message']) ? $_GET['message'] : '';
+$statusType = isset($_GET['status']) ? $_GET['status'] : '';
 ?>
 
 <div class="container mt-5 mb-5">
@@ -123,6 +127,24 @@ require_once "includes/templates/header.php";
     </div>
 </div>
 
+<!-- Modal para exibir mensagens de status -->
+<div class="modal fade" id="statusModal" tabindex="-1" aria-labelledby="statusModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="statusModalLabel">Status da Operação</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <?= htmlspecialchars($statusMessage) ?>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-<?= htmlspecialchars($statusType) ?>" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 // Inicializa o DataTable com tradução para o português
 $(document).ready(function() {
@@ -131,8 +153,15 @@ $(document).ready(function() {
             "url": "assets/js/pt-BR.json" // URL para o arquivo de tradução
         }
     });
+
+    // Exibe o modal de status se houver uma mensagem de status
+    <?php if (!empty($statusMessage)): ?>
+        var statusModal = new bootstrap.Modal(document.getElementById('statusModal'));
+        statusModal.show();
+        <?php unset($_SESSION['statusMessage']); unset($_SESSION['statusType']); ?>
+    <?php endif; ?>
 });
 </script>
 
 <!-- Inclui o rodapé da página -->
-<?php include_once "includes/templates/footer.php"?>
+<?php include_once "includes/templates/footer.php" ?>

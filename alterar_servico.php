@@ -169,6 +169,7 @@ require_once "includes/templates/header.php";
         <?php if (!empty($statusMessage)): ?>
             var statusModal = new bootstrap.Modal(document.getElementById('statusModal'));
             statusModal.show();
+            <?php unset($_SESSION['statusMessage']); unset($_SESSION['statusType']); ?>
         <?php endif; ?>
 
         // Adiciona novo material ao contêiner
@@ -240,6 +241,14 @@ require_once "includes/templates/header.php";
 
         // Atualizar o valor total ao carregar a página
         updateTotal();
+
+        // Validação para impedir valor negativo na mão de obra
+        document.getElementById('valor_mao_obra').addEventListener('input', function(e) {
+            if (parseFloat(e.target.value) < 0) {
+                e.target.value = 0;
+            }
+            updateTotal();
+        });
     });
 </script>
 

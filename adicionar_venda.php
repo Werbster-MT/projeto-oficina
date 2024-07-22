@@ -28,6 +28,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $precos = $_POST["precos"];
     $user = $_SESSION["usuario"];
 
+    // Verifica se há ao menos um material associado
+    if (empty($materiais)) {
+        $_SESSION['statusMessage'] = "Erro: Adicione pelo menos um material à venda.";
+        $_SESSION['statusType'] = "danger";
+        header("Location: adicionar_venda.php");
+        exit();
+    }
+
     // Inicia uma transação
     $banco->begin_transaction();
     try {
@@ -112,7 +120,7 @@ require_once "includes/templates/header.php";
 
 <div class="container mt-5 mb-5">
     <h2>Adicionar Venda</h2>
-    <form method="POST">
+    <form id="form-adicionar-venda" method="POST">
         <!-- Campo para a data da venda -->
         <div class="mb-3">
             <label for="data" class="form-label">Data</label>
@@ -195,10 +203,11 @@ require_once "includes/templates/header.php";
         <?php if (!empty($statusMessage)): ?>
             var statusModal = new bootstrap.Modal(document.getElementById('statusModal'));
             statusModal.show();
+            <?php unset($_SESSION['statusMessage']); unset($_SESSION['statusType']); ?>
         <?php endif; ?>
 
-        // Adiciona novo material ao contêiner
-        document.getElementById('btn-add-material').addEventListener('click', function() {
+            // Adiciona novo material ao contêiner
+            document.getElementById('btn-add-material').addEventListener('click', function() {
             var container = document.getElementById('materiais-container');
             var template = document.getElementById('material-template').cloneNode(true);
             template.style.display = 'flex';
@@ -247,6 +256,14 @@ require_once "includes/templates/header.php";
             });
             document.getElementById('total').value = total.toFixed(2);
         }
+
+        document.getElementById('form-adicionar-venda').addEventListener('submit', function(event) {
+            var materiais = document.querySelectorAll('.material-item');
+            if (materiais.length === 0) {
+                alert('Erro: Adicione pelo menos um material à venda.');
+                event.preventDefault();
+            }
+        });
     });
 </script>
 
