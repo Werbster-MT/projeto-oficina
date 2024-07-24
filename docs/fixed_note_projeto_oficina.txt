@@ -20,3 +20,6 @@
 - Material consegue ser editado para valores negativos. (corrigido)
 
 * Nova lógica atribuída, quando uma venda/serviço é deletado, um modal com o status da operação será direcionado para página de exibição (vendas/serviços). 
+
+* Header: 
+- Removendo duplicação do bootstrap.bunlde.min.js
